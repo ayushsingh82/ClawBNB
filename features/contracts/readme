@@ -1,0 +1,5 @@
+#minttoken - 0xC4f1FE9aa172c6EA81DbDe0185ba0Bfbbb638340
+
+#mintnft - 0x59a6C6316109444C0DbaeAfFa1Aa8E91A6B07128
+
+we want when user deploy the agent and we see agnet in /myagents and when user click features like minttoken in that particular agent in dashbiard it should ask for constructor input like name , symbo, supply and when user fils it show to transact the features and user confirmation in wallet simple 
