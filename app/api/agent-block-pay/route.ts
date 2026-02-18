@@ -8,7 +8,7 @@ import {
   BSC_USDC_TESTNET,
   FACILITATOR_URL,
   FEATURE_PRICE_USDC,
-} from "../../../402/x402-config";
+} from "../../../lib/x402-config";
 
 const BSC_NETWORK_LOCAL: Network = NETWORK;
 

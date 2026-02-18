@@ -21,7 +21,7 @@ import { Copy, Check, ExternalLink, TrendingUp } from "lucide-react";
 import { FloatingFacehashes } from "./FloatingFacehashes";
 import { TokenChart } from "./TokenChart";
 import { useTokenData, type TimeframeData } from "../contexts/TokenDataContext";
-import { TOKEN_ADDRESS, NADFUN_TOKEN_URL } from "../constants";
+import { TOKEN_ADDRESS, TOKEN_LAUNCH_URL } from "../constants";
 
 const MotionBox = motion(Box);
 
@@ -119,7 +119,7 @@ export function TokenSection() {
                     h="56px"
                     borderRadius="xl"
                     border="2px solid"
-                    borderColor="purple.400"
+                    borderColor="#180E67"
                     shadow="0 0 20px rgba(139,92,246,0.3)"
                   />
                 ) : (
@@ -127,12 +127,12 @@ export function TokenSection() {
                     w="56px"
                     h="56px"
                     borderRadius="xl"
-                    bg="purple.600"
+                    bg="#180E67"
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
                     border="2px solid"
-                    borderColor="purple.400"
+                    borderColor="#180E67"
                     shadow="0 0 20px rgba(139,92,246,0.3)"
                   >
                     <Text fontSize="2xl" fontWeight="800" color="white">
@@ -194,7 +194,7 @@ export function TokenSection() {
               align="stretch"
               cursor="pointer"
               onClick={onCopy}
-              _hover={{ borderColor: "purple.500" }}
+              _hover={{ borderColor: "#180E67" }}
               transition="all 0.2s"
             >
               <Flex
@@ -207,7 +207,7 @@ export function TokenSection() {
                 <Text
                   fontSize="xs"
                   fontWeight="700"
-                  color="purple.300"
+                  color="#241388"
                   letterSpacing="wider"
                 >
                   CA
@@ -315,7 +315,7 @@ export function TokenSection() {
                           cursor="pointer"
                           bg={isActive ? "whiteAlpha.100" : "transparent"}
                           borderBottom={isActive ? "2px solid" : "2px solid transparent"}
-                          borderColor={isActive ? "purple.400" : "transparent"}
+                          borderColor={isActive ? "#180E67" : "transparent"}
                           onClick={() => setSelectedTf(label)}
                           _hover={{ bg: "whiteAlpha.50" }}
                           transition="all 0.15s"
@@ -425,7 +425,7 @@ export function TokenSection() {
                         <Text fontSize="10px" color="gray.500" fontWeight="600">
                           MARKET
                         </Text>
-                        <Text fontSize="xs" fontWeight="700" color="purple.300" fontFamily="mono">
+                        <Text fontSize="xs" fontWeight="700" color="#241388" fontFamily="mono">
                           {tokenData?.marketType || "—"}
                         </Text>
                       </HStack>
@@ -444,25 +444,25 @@ export function TokenSection() {
           >
             <Button
               as="a"
-              href={NADFUN_TOKEN_URL}
+              href={TOKEN_LAUNCH_URL}
               target="_blank"
               rel="noopener noreferrer"
               size="lg"
-              bg="purple.500"
+              bg="#180E67"
               color="white"
               fontWeight="700"
               borderRadius="xl"
               px={10}
               _hover={{
-                bg: "purple.400",
+                bg: "#241388",
                 transform: "translateY(-1px)",
                 shadow: "0 4px 20px rgba(139,92,246,0.3)",
               }}
-              _active={{ bg: "purple.600" }}
+              _active={{ bg: "#180E67" }}
               transition="all 0.2s"
               rightIcon={<ExternalLink size={16} />}
             >
-              Buy $NCLAW on nad.fun
+              Buy $BCLAW
             </Button>
           </MotionBox>
         </VStack>

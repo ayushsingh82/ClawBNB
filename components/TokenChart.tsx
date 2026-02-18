@@ -107,7 +107,7 @@ export function TokenChart() {
       chartRef.current = chart;
 
       const series = chart.addSeries(lc.AreaSeries, {
-        lineColor: "#8b5cf6",
+        lineColor: "#180E67",
         topColor: "rgba(139, 92, 246, 0.4)",
         bottomColor: "rgba(139, 92, 246, 0.02)",
         lineWidth: 2,

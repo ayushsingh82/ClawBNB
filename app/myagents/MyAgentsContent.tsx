@@ -80,9 +80,9 @@ function SkillBubbles({ nodes }: { nodes: AgentFromAPI["canvasJson"]["nodes"] })
       {visible.map((label) => (
         <Box
           key={label}
-          bg="#3F2BA410"
+          bg="#180E6710"
           border="1px solid"
-          borderColor="#3F2BA430"
+          borderColor="#180E6730"
           borderRadius="full"
           px={2.5}
           py={0.5}
@@ -108,7 +108,7 @@ function statusColor(status: AgentFromAPI["status"]) {
     case "live": return "green";
     case "deploying": return "yellow";
     case "failed": return "red";
-    default: return "purple";
+    default: return "blue";
   }
 }
 
@@ -180,8 +180,8 @@ function AgentCard({
       </Text>
       {agent.walletAddress && (
         <HStack spacing={1} mb={1}>
-          <Wallet size={10} style={{ color: "#3F2BA4" }} />
-          <Text fontSize="2xs" color="purple.500" noOfLines={1} fontFamily="mono">
+          <Wallet size={10} style={{ color: "#180E67" }} />
+          <Text fontSize="2xs" color="bauhaus.blue" noOfLines={1} fontFamily="mono">
             {agent.walletAddress.slice(0, 6)}...{agent.walletAddress.slice(-4)}
           </Text>
         </HStack>
@@ -270,7 +270,7 @@ function AnimatedNodeResult({
     >
       <Box
         bg={
-          status === "executing" ? "purple.50" :
+          status === "executing" ? "blue.50" :
           status === "done" ? "green.50" :
           status === "error" ? "red.50" : "gray.50"
         }
@@ -278,7 +278,7 @@ function AnimatedNodeResult({
         p={4}
         border="2px solid"
         borderColor={
-          status === "executing" ? "purple.300" :
+          status === "executing" ? "blue.300" :
           status === "done" ? "green.300" :
           status === "error" ? "red.300" : "gray.200"
         }
@@ -291,7 +291,7 @@ function AnimatedNodeResult({
                 animate={{ scale: [1, 1.3, 1] }}
                 transition={{ repeat: Infinity, duration: 1 }}
               >
-                <Spinner size="xs" color="purple.500" />
+                <Spinner size="xs" color="bauhaus.blue" />
               </motion.div>
             )}
             {status === "done" && <CheckCircle size={16} style={{ color: "#38A169" }} />}
@@ -303,7 +303,7 @@ function AnimatedNodeResult({
           </HStack>
           <Badge
             colorScheme={
-              status === "executing" ? "purple" :
+              status === "executing" ? "blue" :
               status === "done" ? "green" :
               status === "error" ? "red" : "gray"
             }
@@ -330,7 +330,7 @@ function AnimatedNodeResult({
                 {r.txHash}
               </Code>
               {r.tokenId && (
-                <Text fontSize="xs" mt={1} color="purple.600" fontWeight="600">
+                <Text fontSize="xs" mt={1} color="bauhaus.blue" fontWeight="600">
                   Token ID: #{r.tokenId}
                 </Text>
               )}
@@ -622,7 +622,7 @@ export function MyAgentsContent() {
           <Container maxW="lg" position="relative" zIndex={1}>
             <VStack spacing={8} align="stretch" textAlign="center" bg="white" borderRadius="xl" border="1px solid" borderColor="gray.200" p={{ base: 8, md: 12 }} boxShadow="card">
               <Box w="14" h="14" borderRadius="xl" bg="gray.100" display="flex" alignItems="center" justifyContent="center" mx="auto">
-                <Wallet size={28} style={{ color: "#3F2BA4" }} />
+                <Wallet size={28} style={{ color: "#180E67" }} />
               </Box>
               <Heading size="lg" fontWeight="600" color="gray.900">Connect Wallet</Heading>
               <Text color="gray.600" fontSize="md" maxW="md" mx="auto" lineHeight="tall">
@@ -643,13 +643,13 @@ export function MyAgentsContent() {
           <Container maxW="lg" position="relative" zIndex={1}>
             <VStack spacing={8} align="stretch" textAlign="center" bg="white" borderRadius="xl" border="1px solid" borderColor="gray.200" p={{ base: 8, md: 12 }} boxShadow="card">
               <Box w="14" h="14" borderRadius="xl" bg="gray.100" display="flex" alignItems="center" justifyContent="center" mx="auto">
-                <Bot size={28} style={{ color: "#3F2BA4" }} />
+                <Bot size={28} style={{ color: "#180E67" }} />
               </Box>
               <Heading size="lg" fontWeight="600" color="gray.900">My Agents</Heading>
               <Text color="gray.600" fontSize="md" maxW="md" mx="auto" lineHeight="tall">
                 Agents you&apos;ve built will appear here.
               </Text>
-              <Button as={Link} href="/ab" leftIcon={<Plus size={18} />} bg={PRIMARY} color="white" size="lg" _hover={{ bg: "#352396", color: "white" }} borderRadius="lg" fontWeight="600">
+              <Button as={Link} href="/ab" leftIcon={<Plus size={18} />} bg={PRIMARY} color="white" size="lg" _hover={{ bg: "#241388", color: "white" }} borderRadius="lg" fontWeight="600">
                 Open Agent Builder
               </Button>
             </VStack>
@@ -668,7 +668,7 @@ export function MyAgentsContent() {
         <Container maxW="5xl" position="relative" zIndex={1}>
           <HStack justify="space-between" align="center" mb={8}>
             <Heading size="lg" fontWeight="600" color="gray.900">My Agents</Heading>
-            <Button as={Link} href="/ab" leftIcon={<Plus size={16} />} bg={PRIMARY} color="white" size="sm" _hover={{ bg: "#352396" }} borderRadius="lg" fontWeight="600">
+            <Button as={Link} href="/ab" leftIcon={<Plus size={16} />} bg={PRIMARY} color="white" size="sm" _hover={{ bg: "#241388" }} borderRadius="lg" fontWeight="600">
               New Agent
             </Button>
           </HStack>
@@ -709,11 +709,11 @@ export function MyAgentsContent() {
           <ModalHeader>
             <HStack>
               <motion.div animate={{ rotate: executionPhase === "executing" ? [0, 360] : 0 }} transition={{ repeat: executionPhase === "executing" ? Infinity : 0, duration: 2, ease: "linear" }}>
-                <Bot size={20} style={{ color: "#3F2BA4" }} />
+                <Bot size={20} style={{ color: "#180E67" }} />
               </motion.div>
               <Text>{executeTarget?.name}</Text>
               {executionPhase === "executing" && (
-                <Badge colorScheme="purple" fontSize="2xs" ml={2}>Executing</Badge>
+                <Badge colorScheme="blue" fontSize="2xs" ml={2}>Executing</Badge>
               )}
               {executionPhase === "results" && (
                 <Badge colorScheme="green" fontSize="2xs" ml={2}>Complete</Badge>
@@ -729,12 +729,12 @@ export function MyAgentsContent() {
                   <VStack spacing={4} align="stretch">
                     {/* Agent Wallet */}
                     {executeTarget.walletAddress ? (
-                      <Box bg="purple.50" borderRadius="lg" p={4} border="1px solid" borderColor="purple.200">
-                        <Text fontSize="xs" fontWeight="700" color="purple.700" mb={2} textTransform="uppercase" letterSpacing="wide">
+                      <Box bg="blue.50" borderRadius="lg" p={4} border="1px solid" borderColor="blue.200">
+                        <Text fontSize="xs" fontWeight="700" color="blue.800" mb={2} textTransform="uppercase" letterSpacing="wide">
                           Agent Wallet
                         </Text>
                         <HStack>
-                          <Bot size={18} style={{ color: "#3F2BA4" }} />
+                          <Bot size={18} style={{ color: "#180E67" }} />
                           <Code fontSize="xs" p={1.5} borderRadius="md" bg="white" flex={1} wordBreak="break-all">
                             {executeTarget.walletAddress}
                           </Code>
@@ -761,9 +761,9 @@ export function MyAgentsContent() {
                             />
                             <Button
                               size="xs"
-                              bg="purple.500"
+                              bg="bauhaus.blue"
                               color="white"
-                              _hover={{ bg: "purple.600" }}
+                              _hover={{ bg: "#241388" }}
                               onClick={handleFundAgent}
                               isLoading={fundingTx}
                               loadingText="Sending..."
@@ -788,7 +788,7 @@ export function MyAgentsContent() {
                       </Text>
                       <Flex flexWrap="wrap" gap={1.5}>
                         {execNodes.map((n) => (
-                          <Badge key={n.id} colorScheme="purple" variant="subtle" fontSize="2xs">
+                          <Badge key={n.id} colorScheme="blue" variant="subtle" fontSize="2xs">
                             {getSkillLabel(n.type)}
                           </Badge>
                         ))}
@@ -887,9 +887,9 @@ export function MyAgentsContent() {
                   <VStack spacing={3} align="stretch">
                     <HStack justify="center" mb={2}>
                       <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                        <Bot size={24} style={{ color: "#3F2BA4" }} />
+                        <Bot size={24} style={{ color: "#180E67" }} />
                       </motion.div>
-                      <Text fontSize="sm" color="purple.600" fontWeight="600">
+                      <Text fontSize="sm" color="bauhaus.blue" fontWeight="600">
                         Agent is executing skills...
                       </Text>
                     </HStack>

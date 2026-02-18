@@ -38,11 +38,11 @@ export function TweetCard({
         bg="white"
         border="3px solid"
         borderColor="bauhaus.black"
-        boxShadow="4px 4px 0px 0px #9B8AE6"
+        boxShadow="4px 4px 0px 0px #180E67"
         p={4}
         _hover={{
           transform: "translateY(-2px)",
-          boxShadow: "6px 6px 0px 0px #9B8AE6",
+          boxShadow: "6px 6px 0px 0px #180E67",
         }}
         transition="all 0.2s ease-out"
       >

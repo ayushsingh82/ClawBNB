@@ -7,7 +7,7 @@ import { ExactEvmScheme } from "@x402/evm";
 import { x402Client } from "@x402/core/client";
 import { Box, Container, VStack, Button, Text, Heading, Link } from "@chakra-ui/react";
 import { AppShell } from "../AppShell";
-import { x402ClientConfig } from "../../402/x402-config";
+import { x402ClientConfig } from "../../lib/x402-config";
 
 const PRIMARY = "bauhaus.blue";
 
@@ -124,7 +124,7 @@ export default function PremiumPage() {
             border="2px solid"
             borderColor={PRIMARY}
             p={{ base: 8, md: 10 }}
-            boxShadow="6px 6px 0 0 #9B8AE6"
+            boxShadow="6px 6px 0 0 #180E67"
           >
             <Heading size="lg" color="black" fontFamily="serif">
               x402 on BSC
@@ -134,7 +134,7 @@ export default function PremiumPage() {
               <Link
                 href="https://x402.org"
                 isExternal
-                color="purple.600"
+                color="bauhaus.blue"
                 textDecoration="underline"
               >
                 Docs
@@ -150,7 +150,7 @@ export default function PremiumPage() {
               _hover={{ bg: "bauhaus.red", color: "white" }}
               border="2px solid"
               borderColor="black"
-              boxShadow="3px 3px 0 0 #9B8AE6"
+              boxShadow="3px 3px 0 0 #180E67"
             >
               {status === "loading" ? "Processing..." : "Pay & Unlock Content"}
             </Button>

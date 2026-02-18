@@ -66,14 +66,13 @@ import {
   type CanvasEdge,
 } from "../../lib/api-client";
 import { getSkillLabel } from "../../lib/skill-labels";
-import { FEATURE_PRICE_USDC } from "../../402/x402-config";
-import { x402ClientConfig } from "../../402/x402-config";
+import { FEATURE_PRICE_USDC, x402ClientConfig } from "../../lib/x402-config";
 
 // ─── Bauhaus palette (matches theme/index.ts) ────────────────────────────────
 const BG = "#F5F0E8";
 const BLACK = "#121212";
-const BLUE = "#3F2BA4";
-const PURPLE_LIGHT = "#9B8AE6";
+const BLUE = "#180E67";
+const PURPLE_LIGHT = "#2D1F8F";
 const SMALL_BOX = "#E8E4F0";
 
 const DOTTED_BG = `radial-gradient(circle, ${BLUE}18 1px, transparent 1px)`;
@@ -321,9 +320,6 @@ function DraggableOperationCard({
           </Box>
         </HStack>
         <HStack spacing={1.5} flexShrink={0}>
-          <Text fontSize="2xs" color={BLUE} fontWeight="bold" pointerEvents="none">
-            {FEATURE_PRICE_USDC} USDC
-          </Text>
           <Box
             as="button"
             type="button"
@@ -795,7 +791,6 @@ function AgentBuilderInner() {
             {nodes.length > 0 && (
               <HStack justify="space-between" mb={2}>
                 <Text fontSize="xs" color="gray.500">{nodes.length} block{nodes.length !== 1 ? "s" : ""} &middot; {distinctSkillTypes.length} skill{distinctSkillTypes.length !== 1 ? "s" : ""}</Text>
-                <Text fontSize="xs" color={BLUE} fontWeight="bold">{deployTotal} USDC</Text>
               </HStack>
             )}
             <VStack spacing={2} mt={4} pt={4} borderTop="1px solid" borderColor="gray.200">
@@ -806,7 +801,7 @@ function AgentBuilderInner() {
                 color="white"
                 borderRadius="lg"
                 fontWeight="600"
-                _hover={{ bg: "#352396" }}
+                _hover={{ bg: "#241388" }}
                 leftIcon={<Save size={16} />}
                 onClick={handleSave}
                 isDisabled={nodes.length === 0}

@@ -3,7 +3,7 @@ import { withX402, type RouteConfig } from "@x402/next";
 import { x402ResourceServer, HTTPFacilitatorClient } from "@x402/core/server";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import type { Network } from "@x402/core/types";
-import { BSC_NETWORK, BSC_USDC_TESTNET, FACILITATOR_URL } from "../../../402/x402-config";
+import { BSC_NETWORK, BSC_USDC_TESTNET, FACILITATOR_URL } from "../../../lib/x402-config";
 
 function getServer() {
   const facilitatorClient = new HTTPFacilitatorClient({ url: FACILITATOR_URL });

@@ -58,7 +58,7 @@ export function Hero() {
                   name="claw-agent-builder"
                   size={64}
                   variant="solid"
-                  colors={["#3F2BA4", "#9B8AE6"]}
+                  colors={["#8b5cf6", "#a78bfa"]}
                 />
               </Box>
             </HStack>
@@ -69,7 +69,7 @@ export function Hero() {
               fontWeight="600"
               lineHeight="1.15"
               letterSpacing="-0.02em"
-              color="gray.900"
+              color="bauhaus.blue"
             >
               Claw Agent Builder
             </Heading>
@@ -99,12 +99,11 @@ export function Hero() {
             <Button
               as={Link}
               href="/ab"
-              colorScheme="purple"
               bg={PRIMARY}
               color="white"
               size="lg"
               rightIcon={<ArrowRight size={18} />}
-              _hover={{ bg: "#352396", color: "white" }}
+              _hover={{ bg: "#241388", color: "white" }}
               borderRadius="lg"
               fontWeight="600"
             >

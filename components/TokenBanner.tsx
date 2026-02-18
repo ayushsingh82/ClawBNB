@@ -84,7 +84,7 @@ export function TokenBanner() {
           fontSize="xs"
           color="bauhaus.blue"
         >
-          $NCLAW
+          $BCLAW
         </Box>
         <Text fontSize="xs" color="gray.300">
           ·

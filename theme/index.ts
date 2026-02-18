@@ -4,14 +4,14 @@ const bauhaus = {
   background: "#FAFAFA",
   black: "#0F0F0F",
   red: "#5B4BB9",
-  blue: "#3F2BA4",
+  blue: "#180E67",
   yellow: "#6E54FE",
   green: "#208040",
   border: "#121212",
   foreground: "#171717",
-  primaryLight: "#9B8AE6",
+  primaryLight: "#2D1F8F",
   smallBox: "#F3F1F8",
-  smallBoxText: "#3F2BA4",
+  smallBoxText: "#180E67",
 };
 
 export const theme = extendTheme({
@@ -24,7 +24,7 @@ export const theme = extendTheme({
   shadows: {
     card: "0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06)",
     cardHover: "0 4px 12px -2px rgb(0 0 0 / 0.08), 0 2px 6px -2px rgb(0 0 0 / 0.04)",
-    soft: "0 2px 8px -2px rgb(63 43 164 / 0.12)",
+    soft: "0 2px 8px -2px rgb(24 14 103 / 0.12)",
   },
   semanticTokens: {
     colors: {
@@ -42,11 +42,11 @@ export const theme = extendTheme({
           borderRadius: "lg",
           boxShadow: "soft",
           _hover: {
-            bg: "#352396",
+            bg: "#241388",
             boxShadow: "cardHover",
             _disabled: { bg: "bauhaus.blue" },
           },
-          _active: { bg: "#2a1c7a" },
+          _active: { bg: "#180E67" },
         },
         outline: {
           border: "1px solid",
