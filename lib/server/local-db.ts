@@ -48,7 +48,9 @@ interface DB {
   deployments: Deployment[];
 }
 
-const DATA_DIR = path.join(process.cwd(), "data");
+// On Vercel the project dir is read-only; use /tmp for persistence within a lambda.
+const IS_VERCEL = !!process.env.VERCEL;
+const DATA_DIR = IS_VERCEL ? "/tmp" : path.join(process.cwd(), "data");
 const DB_FILE = path.join(DATA_DIR, "db.json");
 
 function readDB(): DB {

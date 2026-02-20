@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
   } catch (err) {
     console.error("[GET /api/agents]", err);
     return NextResponse.json(
-      { error: "Failed to load agents. Check DATABASE_URL and run: npx prisma generate && npx prisma migrate deploy" },
+      { error: "Failed to load agents." },
       { status: 500 }
     );
   }
@@ -123,13 +123,8 @@ export async function POST(request: NextRequest) {
       err && typeof err === "object" && "message" in err && typeof (err as { message: unknown }).message === "string"
         ? (err as { message: string }).message
         : "Failed to save agent.";
-    const code = err && typeof err === "object" && "code" in err ? (err as { code: string }).code : "";
-    const hint =
-      message.includes("reach") || message.includes("connect") || code === "P1001"
-        ? "Start your database (e.g. run: npx prisma dev) then try again."
-        : "Ensure DATABASE_URL is set and run: npx prisma generate && npx prisma migrate deploy";
     return NextResponse.json(
-      { error: message, hint, code },
+      { error: message },
       { status: 500 }
     );
   }
