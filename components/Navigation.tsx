@@ -26,7 +26,7 @@ const PRIMARY = "bauhaus.blue";
 const navLinks = [
   { label: "Agents", href: "/myagents" },
   { label: "Build", href: "/ab" },
-  { label: "Mint", href: "/premium" },
+  // { label: "Mint", href: "/premium" },
 ];
 
 export function Navigation() {

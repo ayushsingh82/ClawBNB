@@ -118,8 +118,8 @@ Infrastructure
 | `loop` | Live | Repeat N times with configurable interval |
 | `store_result` | Live | Persist results with TTL |
 | `notify_user` | Live | Push notifications to agent owner |
-| `transfer_asset` | Planned | Transfer tokens between wallets |
-| `create_dao` | Planned | Deploy governance contracts |
+| `transfer_asset` | Live | Transfer tokens between wallets |
+| `create_dao` | Live | Deploy governance contracts |
 | `run_sub_agent` | Planned | Chain agents together |
 
 ---
