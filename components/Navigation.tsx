@@ -52,7 +52,7 @@ export function Navigation() {
                 color={PRIMARY}
                 letterSpacing="0.02em"
               >
-                BNB-vibe
+                ClawBNB
               </Text>
             </HStack>
           </Link>
