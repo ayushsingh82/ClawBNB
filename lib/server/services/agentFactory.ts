@@ -384,34 +384,27 @@ export default {
   ): Promise<CloudflareDeployResult> {
     const url = `https://api.cloudflare.com/client/v4/accounts/${this.accountId}/workers/scripts/${workerName}`;
 
-    // Upload worker script as ES module using multipart form data
-    const metadata = JSON.stringify({
-      main_module: "worker.js",
-      compatibility_date: "2024-01-01",
-    });
-
-    const boundary = "----CloudflareWorkerBoundary" + Date.now();
-    const body = [
-      `--${boundary}`,
-      'Content-Disposition: form-data; name="metadata"; filename="metadata.json"',
-      "Content-Type: application/json",
-      "",
-      metadata,
-      `--${boundary}`,
-      'Content-Disposition: form-data; name="worker.js"; filename="worker.js"',
-      "Content-Type: application/javascript+module",
-      "",
-      workerCode,
-      `--${boundary}--`,
-    ].join("\r\n");
+    // Upload worker script as ES module using FormData
+    const formData = new FormData();
+    formData.append(
+      "metadata",
+      new Blob(
+        [JSON.stringify({ main_module: "index.js", compatibility_date: "2024-01-01" })],
+        { type: "application/json" }
+      )
+    );
+    formData.append(
+      "index.js",
+      new Blob([workerCode], { type: "application/javascript+module" }),
+      "index.js"
+    );
 
     const uploadResp = await fetch(url, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${this.apiToken}`,
-        "Content-Type": `multipart/form-data; boundary=${boundary}`,
       },
-      body,
+      body: formData,
     });
 
     if (!uploadResp.ok) {
