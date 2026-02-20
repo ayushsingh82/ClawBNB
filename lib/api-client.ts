@@ -164,21 +164,21 @@ export async function duplicateAgent(_walletAddress: string, id: string): Promis
 export async function deployAgent(
   walletAddress: string,
   agentId: string,
+  agentName: string,
   skills: number,
-  txHash: string
+  txHash: string,
+  canvasJson: { nodes: CanvasBlock[]; edges: CanvasEdge[] }
 ): Promise<{ deployed: boolean; workerUrl?: string; error?: string }> {
-  // Send canvas data from localStorage so the server can deploy without a DB
-  const agent = readAgents().find((a) => a.id === agentId);
   const res = await fetch("/api/agents/deploy", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       walletAddress,
       agentId,
-      agentName: agent?.name || "Untitled Agent",
+      agentName,
       skills,
       txHash,
-      canvasJson: agent?.canvasJson,
+      canvasJson,
     }),
   });
   const data = await res.json();

@@ -611,7 +611,7 @@ function AgentBuilderInner() {
       toast({ title: "Payment sent!", description: `Tx: ${txHash.slice(0, 10)}...${txHash.slice(-8)}`, status: "success", duration: 3000 });
 
       // 3. Trigger deployment pipeline with payment proof
-      const deployResult = await deployAgent(address, agentId, distinctSkillTypes.length, txHash);
+      const deployResult = await deployAgent(address, agentId, agentName, distinctSkillTypes.length, txHash, { nodes, edges });
       if (deployResult.deployed) {
         toast({
           title: "Agent deployed!",
