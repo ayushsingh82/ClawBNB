@@ -352,7 +352,21 @@ function AnimatedNodeResult({
                 </Text>
               </HStack>
               <Text fontSize="2xs" color="gray.500" mb={0.5}>Tx Hash</Text>
-              <Code fontSize="2xs" wordBreak="break-all" display="block" p={1.5} borderRadius="md" bg="white" border="1px solid" borderColor="gray.200">
+              <Code
+                as="a"
+                href={r.explorerUrl || `${BSC_TESTNET_EXPLORER_URL}/tx/${r.txHash}`}
+                target="_blank"
+                fontSize="2xs"
+                wordBreak="break-all"
+                display="block"
+                p={1.5}
+                borderRadius="md"
+                bg="white"
+                border="1px solid"
+                borderColor="gray.200"
+                cursor="pointer"
+                _hover={{ bg: `${BLUE}08`, borderColor: BLUE, textDecoration: "underline" }}
+              >
                 {r.txHash}
               </Code>
               {r.tokenId && (
@@ -873,6 +887,7 @@ export function MyAgentsContent() {
                             border="1.5px solid"
                             borderColor="gray.200"
                             _focus={{ borderColor: BLUE, boxShadow: `0 0 0 1px ${BLUE}` }}
+                            _placeholder={{ color: "black" }}
                             value={executeInputs.walletAddress ?? address ?? ""}
                             onChange={(e) => setExecuteInputs((p) => ({ ...p, walletAddress: e.target.value }))}
                             placeholder="0x..."
@@ -889,6 +904,7 @@ export function MyAgentsContent() {
                               _focus={{ borderColor: BLUE, boxShadow: `0 0 0 1px ${BLUE}` }}
                               value={executeInputs.token ?? ""}
                               onChange={(e) => setExecuteInputs((p) => ({ ...p, token: e.target.value }))}
+                              _placeholder={{ color: "black" }}
                               placeholder="BNB or token contract address"
                             />
                           </Box>
@@ -904,6 +920,7 @@ export function MyAgentsContent() {
                               _focus={{ borderColor: BLUE, boxShadow: `0 0 0 1px ${BLUE}` }}
                               value={executeInputs.tokenAddress ?? ""}
                               onChange={(e) => setExecuteInputs((p) => ({ ...p, tokenAddress: e.target.value }))}
+                              _placeholder={{ color: "black" }}
                               placeholder="0x... or leave empty for BNB"
                             />
                           </Box>
@@ -920,6 +937,7 @@ export function MyAgentsContent() {
                                 _focus={{ borderColor: BLUE, boxShadow: `0 0 0 1px ${BLUE}` }}
                                 value={executeInputs.recipient ?? ""}
                                 onChange={(e) => setExecuteInputs((p) => ({ ...p, recipient: e.target.value }))}
+                                _placeholder={{ color: "black" }}
                                 placeholder={address ?? "0x..."}
                               />
                             </Box>
@@ -934,6 +952,7 @@ export function MyAgentsContent() {
                                   _focus={{ borderColor: BLUE, boxShadow: `0 0 0 1px ${BLUE}` }}
                                   value={executeInputs.amount ?? "1000"}
                                   onChange={(e) => setExecuteInputs((p) => ({ ...p, amount: e.target.value }))}
+                                  _placeholder={{ color: "black" }}
                                   placeholder="1000"
                                 />
                               </Box>
