@@ -198,7 +198,7 @@ const executors = {
 
   // Phase 2 stubs: return schema-valid placeholder responses
   async mint_token(config, context) {
-    const MINT_TOKEN_ADDRESS = "0xe936e65D9F598059579E3Dc74E98514124538398";
+    const MINT_TOKEN_ADDRESS = "0xc4f63b829d293ee58c5428824b3f648796364ec2";
     const MINT_SELECTOR = "0x40c10f19";
     const to = config.recipient || context.input?.recipient || context.input?.walletAddress || "";
     const amount = config.amount || context.input?.amount || "1000";
@@ -225,7 +225,7 @@ const executors = {
     };
   },
   async mint_nft(config, context) {
-    const MINT_NFT_ADDRESS = "0x1451A67F6527B6B37CFCA506dab9E5Fdcd6b9bd2";
+    const MINT_NFT_ADDRESS = "0x79882f10a1d44bfe011969dba54ab288050b269d";
     const to = config.recipient || context.input?.recipient || context.input?.walletAddress || "";
     const metadataUri = config.metadataUri || config.uri || "ipfs://nadclaw-nft-placeholder";
     if (!to || !to.startsWith("0x")) {

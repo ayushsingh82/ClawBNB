@@ -54,6 +54,9 @@ import { getSkillLabel } from "../../lib/skill-labels";
 import { BSC_TESTNET_EXPLORER_URL } from "../../lib/chains";
 
 const PRIMARY = "bauhaus.blue";
+const BLUE = "#180E67";
+const DARK = "#121212";
+const SMALL_BOX = "#E8E4F0";
 const MAX_VISIBLE_SKILLS = 5;
 
 // ─── Helpers ───
@@ -202,9 +205,14 @@ function AgentCard({
               icon={<Play size={16} />}
               size="sm"
               variant="solid"
-              bg="green.500"
+              bg={BLUE}
               color="white"
-              _hover={{ bg: "green.600" }}
+              border="2px solid"
+              borderColor={DARK}
+              boxShadow={`2px 2px 0 0 #2D1F8F`}
+              _hover={{ bg: "#241388", boxShadow: `3px 3px 0 0 #2D1F8F`, transform: "translateY(-1px)" }}
+              _active={{ boxShadow: `1px 1px 0 0 #2D1F8F`, transform: "translateY(0)" }}
+              transition="all 0.15s"
               onClick={onExecute}
             />
           )}
@@ -262,6 +270,16 @@ function AnimatedNodeResult({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const r = result as any;
 
+  const borderClr =
+    status === "executing" ? `${BLUE}60` :
+    status === "done" ? "#208040" :
+    status === "error" ? "#E53E3E" : `${DARK}20`;
+
+  const shadowClr =
+    status === "executing" ? `${BLUE}30` :
+    status === "done" ? "#20804030" :
+    status === "error" ? "#E53E3E30" : "transparent";
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -269,20 +287,13 @@ function AnimatedNodeResult({
       transition={{ delay: index * 0.1, duration: 0.3 }}
     >
       <Box
-        bg={
-          status === "executing" ? "blue.50" :
-          status === "done" ? "green.50" :
-          status === "error" ? "red.50" : "gray.50"
-        }
+        bg="white"
         borderRadius="lg"
         p={4}
         border="2px solid"
-        borderColor={
-          status === "executing" ? "blue.300" :
-          status === "done" ? "green.300" :
-          status === "error" ? "red.300" : "gray.200"
-        }
-        transition="all 0.3s"
+        borderColor={borderClr}
+        boxShadow={`3px 3px 0 0 ${shadowClr}`}
+        transition="all 0.2s"
       >
         <HStack justify="space-between" mb={2}>
           <HStack>
@@ -291,46 +302,61 @@ function AnimatedNodeResult({
                 animate={{ scale: [1, 1.3, 1] }}
                 transition={{ repeat: Infinity, duration: 1 }}
               >
-                <Spinner size="xs" color="bauhaus.blue" />
+                <Spinner size="xs" color={BLUE} />
               </motion.div>
             )}
-            {status === "done" && <CheckCircle size={16} style={{ color: "#38A169" }} />}
+            {status === "done" && <CheckCircle size={16} style={{ color: "#208040" }} />}
             {status === "error" && <AlertCircle size={16} style={{ color: "#E53E3E" }} />}
-            {status === "idle" && <Bot size={16} style={{ color: "#A0AEC0" }} />}
-            <Text fontSize="sm" fontWeight="600">
+            {status === "idle" && <Bot size={16} style={{ color: BLUE }} />}
+            <Text fontSize="sm" fontWeight="600" color={DARK}>
               {getSkillLabel(node.type)}
             </Text>
           </HStack>
-          <Badge
-            colorScheme={
-              status === "executing" ? "blue" :
-              status === "done" ? "green" :
-              status === "error" ? "red" : "gray"
+          <Box
+            bg={
+              status === "executing" ? `${BLUE}15` :
+              status === "done" ? "#20804015" :
+              status === "error" ? "#E53E3E15" : SMALL_BOX
             }
+            border="1px solid"
+            borderColor={
+              status === "executing" ? `${BLUE}30` :
+              status === "done" ? "#20804030" :
+              status === "error" ? "#E53E3E30" : `${DARK}15`
+            }
+            borderRadius="full"
+            px={2.5}
+            py={0.5}
             fontSize="2xs"
+            fontWeight="600"
+            color={
+              status === "executing" ? BLUE :
+              status === "done" ? "#208040" :
+              status === "error" ? "#E53E3E" : DARK
+            }
           >
             {status === "executing" ? "Running..." :
              status === "done" ? "Complete" :
              status === "error" ? "Failed" : "Pending"}
-          </Badge>
+          </Box>
         </HStack>
 
         {/* Transaction result with explorer link */}
         {r?.txHash && (
           <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}>
-            <Box bg="white" borderRadius="md" p={2} mt={1}>
+            <Box bg={SMALL_BOX} borderRadius="md" p={3} mt={2} border="1px solid" borderColor={`${BLUE}20`}>
               <HStack mb={1}>
-                <CheckCircle size={12} style={{ color: "#38A169" }} />
-                <Text fontSize="2xs" fontWeight="600" color="green.600">
+                <CheckCircle size={12} style={{ color: "#208040" }} />
+                <Text fontSize="2xs" fontWeight="700" color="#208040" textTransform="uppercase" letterSpacing="wide">
                   {r.status === "confirmed" ? "Confirmed" : "Sent"}
                 </Text>
               </HStack>
-              <Text fontSize="2xs" color="gray.500">Tx Hash</Text>
-              <Code fontSize="2xs" wordBreak="break-all" display="block" p={1}>
+              <Text fontSize="2xs" color="gray.500" mb={0.5}>Tx Hash</Text>
+              <Code fontSize="2xs" wordBreak="break-all" display="block" p={1.5} borderRadius="md" bg="white" border="1px solid" borderColor="gray.200">
                 {r.txHash}
               </Code>
               {r.tokenId && (
-                <Text fontSize="xs" mt={1} color="bauhaus.blue" fontWeight="600">
+                <Text fontSize="xs" mt={2} color={BLUE} fontWeight="700">
                   Token ID: #{r.tokenId}
                 </Text>
               )}
@@ -339,9 +365,12 @@ function AnimatedNodeResult({
                 href={r.explorerUrl || `${BSC_TESTNET_EXPLORER_URL}/tx/${r.txHash}`}
                 target="_blank"
                 size="xs"
-                mt={1}
-                variant="link"
-                color="green.600"
+                mt={2}
+                bg={BLUE}
+                color="white"
+                _hover={{ bg: "#241388" }}
+                borderRadius="lg"
+                fontWeight="600"
                 rightIcon={<ExternalLink size={12} />}
               >
                 View on Explorer
@@ -352,32 +381,36 @@ function AnimatedNodeResult({
 
         {/* Balance result */}
         {r?.balance !== undefined && !r?.txHash && (
-          <HStack mt={1}>
-            <Text fontSize="sm" fontWeight="600">
+          <HStack mt={2} bg={SMALL_BOX} p={2} borderRadius="md">
+            <Text fontSize="sm" fontWeight="700" color={DARK}>
               {formatBalance(r.balance, r.decimals || 18)}
             </Text>
-            <Text fontSize="sm" color="gray.500">{r.token || "BNB"}</Text>
+            <Text fontSize="sm" color="gray.500" fontWeight="500">{r.token || "BNB"}</Text>
           </HStack>
         )}
 
         {/* Price result */}
         {r?.price !== undefined && (
-          <Text fontSize="sm" fontWeight="600" mt={1}>
-            {r.price !== null ? `$${r.price}` : "Price not available"}
-            <Text as="span" color="gray.500" ml={1}>{r.token || ""}</Text>
-          </Text>
+          <Box mt={2} bg={SMALL_BOX} p={2} borderRadius="md">
+            <Text fontSize="sm" fontWeight="700" color={DARK}>
+              {r.price !== null ? `$${r.price}` : "Price not available"}
+              <Text as="span" color="gray.500" ml={1} fontWeight="500">{r.token || ""}</Text>
+            </Text>
+          </Box>
         )}
 
         {/* Raw JSON fallback */}
         {r && !r.txHash && r.balance === undefined && r.price === undefined && status === "done" && (
-          <Code fontSize="2xs" display="block" whiteSpace="pre-wrap" p={2} borderRadius="md" maxH="80px" overflow="auto" mt={1}>
+          <Code fontSize="2xs" display="block" whiteSpace="pre-wrap" p={2} borderRadius="md" maxH="80px" overflow="auto" mt={2} bg={SMALL_BOX} border="1px solid" borderColor={`${BLUE}15`}>
             {JSON.stringify(r, null, 2)}
           </Code>
         )}
 
         {/* Error message */}
         {r?.error && (
-          <Text fontSize="2xs" color="red.500" mt={1}>{r.error}</Text>
+          <Box mt={2} bg="#FFF5F5" p={2} borderRadius="md" border="1px solid" borderColor="#E53E3E30">
+            <Text fontSize="2xs" color="#E53E3E" fontWeight="500">{r.error}</Text>
+          </Box>
         )}
       </Box>
     </motion.div>
@@ -704,23 +737,36 @@ export function MyAgentsContent() {
 
       {/* Execute modal — 3 phases */}
       <Modal isOpen={isExecuteOpen} onClose={handleExecuteClose} size="lg" scrollBehavior="inside">
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
+        <ModalOverlay bg="blackAlpha.600" backdropFilter="blur(4px)" />
+        <ModalContent bg="white" border="1px solid" borderColor="gray.200" borderRadius="xl" boxShadow="xl">
+          <ModalHeader borderBottom="1px solid" borderColor="gray.200" pb={3}>
             <HStack>
-              <motion.div animate={{ rotate: executionPhase === "executing" ? [0, 360] : 0 }} transition={{ repeat: executionPhase === "executing" ? Infinity : 0, duration: 2, ease: "linear" }}>
-                <Bot size={20} style={{ color: "#180E67" }} />
-              </motion.div>
-              <Text>{executeTarget?.name}</Text>
+              <Box
+                w="32px" h="32px" borderRadius="lg"
+                bg={SMALL_BOX}
+                border="2px solid"
+                borderColor={DARK}
+                boxShadow={`2px 2px 0 0 ${BLUE}40`}
+                display="flex" alignItems="center" justifyContent="center"
+              >
+                <motion.div animate={{ rotate: executionPhase === "executing" ? [0, 360] : 0 }} transition={{ repeat: executionPhase === "executing" ? Infinity : 0, duration: 2, ease: "linear" }}>
+                  <Bot size={16} style={{ color: BLUE }} />
+                </motion.div>
+              </Box>
+              <Text fontWeight="600" color={DARK}>{executeTarget?.name}</Text>
               {executionPhase === "executing" && (
-                <Badge colorScheme="blue" fontSize="2xs" ml={2}>Executing</Badge>
+                <Box bg={`${BLUE}15`} border="1px solid" borderColor={`${BLUE}30`} borderRadius="full" px={2.5} py={0.5} fontSize="2xs" fontWeight="600" color={BLUE}>
+                  Executing
+                </Box>
               )}
               {executionPhase === "results" && (
-                <Badge colorScheme="green" fontSize="2xs" ml={2}>Complete</Badge>
+                <Box bg="#20804015" border="1px solid" borderColor="#20804030" borderRadius="full" px={2.5} py={0.5} fontSize="2xs" fontWeight="600" color="#208040">
+                  Done
+                </Box>
               )}
             </HStack>
           </ModalHeader>
-          <ModalCloseButton />
+          <ModalCloseButton color={DARK} />
           <ModalBody pb={6}>
             <AnimatePresence mode="wait">
               {/* ─── PHASE 1: Fund ─── */}
@@ -729,13 +775,15 @@ export function MyAgentsContent() {
                   <VStack spacing={4} align="stretch">
                     {/* Agent Wallet */}
                     {executeTarget.walletAddress ? (
-                      <Box bg="blue.50" borderRadius="lg" p={4} border="1px solid" borderColor="blue.200">
-                        <Text fontSize="xs" fontWeight="700" color="blue.800" mb={2} textTransform="uppercase" letterSpacing="wide">
+                      <Box bg={SMALL_BOX} borderRadius="lg" p={4} border="2px solid" borderColor={`${BLUE}30`}>
+                        <Text fontSize="xs" fontWeight="700" color={BLUE} mb={2} textTransform="uppercase" letterSpacing="wide">
                           Agent Wallet
                         </Text>
                         <HStack>
-                          <Bot size={18} style={{ color: "#180E67" }} />
-                          <Code fontSize="xs" p={1.5} borderRadius="md" bg="white" flex={1} wordBreak="break-all">
+                          <Box w="28px" h="28px" borderRadius="md" bg="white" border="1.5px solid" borderColor={DARK} display="flex" alignItems="center" justifyContent="center" flexShrink={0}>
+                            <Wallet size={14} style={{ color: BLUE }} />
+                          </Box>
+                          <Code fontSize="xs" p={1.5} borderRadius="md" bg="white" flex={1} wordBreak="break-all" border="1px solid" borderColor="gray.200" color={DARK}>
                             {executeTarget.walletAddress}
                           </Code>
                         </HStack>
@@ -743,9 +791,9 @@ export function MyAgentsContent() {
                           <HStack>
                             <Text fontSize="sm" color="gray.600">Balance:</Text>
                             {agentBalanceLoading ? (
-                              <Spinner size="xs" />
+                              <Spinner size="xs" color={BLUE} />
                             ) : (
-                              <Text fontSize="sm" fontWeight="700">
+                              <Text fontSize="sm" fontWeight="700" color={DARK}>
                                 {parseFloat(agentBalance).toFixed(4)} BNB
                               </Text>
                             )}
@@ -756,14 +804,17 @@ export function MyAgentsContent() {
                               icon={<RefreshCw size={14} />}
                               size="xs"
                               variant="ghost"
+                              color={BLUE}
                               onClick={refreshBalance}
                               isLoading={agentBalanceLoading}
                             />
                             <Button
                               size="xs"
-                              bg="bauhaus.blue"
+                              bg={BLUE}
                               color="white"
                               _hover={{ bg: "#241388" }}
+                              borderRadius="lg"
+                              fontWeight="600"
                               onClick={handleFundAgent}
                               isLoading={fundingTx}
                               loadingText="Sending..."
@@ -774,8 +825,8 @@ export function MyAgentsContent() {
                         </HStack>
                       </Box>
                     ) : (
-                      <Box bg="yellow.50" borderRadius="lg" p={4} border="1px solid" borderColor="yellow.200">
-                        <Text fontSize="sm" color="yellow.800" fontWeight="600">
+                      <Box bg="#FFF8E6" borderRadius="lg" p={4} border="2px solid" borderColor="#DDAA0040">
+                        <Text fontSize="sm" color="#886600" fontWeight="600">
                           No agent wallet. Re-create this agent to generate one.
                         </Text>
                       </Box>
@@ -783,30 +834,45 @@ export function MyAgentsContent() {
 
                     {/* Skills */}
                     <Box>
-                      <Text fontSize="xs" fontWeight="600" color="gray.500" mb={2} textTransform="uppercase">
+                      <Text fontSize="xs" fontWeight="700" color={BLUE} mb={2} textTransform="uppercase" letterSpacing="wide">
                         Skills ({execNodes.length})
                       </Text>
                       <Flex flexWrap="wrap" gap={1.5}>
                         {execNodes.map((n) => (
-                          <Badge key={n.id} colorScheme="blue" variant="subtle" fontSize="2xs">
+                          <Box
+                            key={n.id}
+                            bg={`${BLUE}10`}
+                            border="1px solid"
+                            borderColor={`${BLUE}30`}
+                            borderRadius="full"
+                            px={2.5}
+                            py={0.5}
+                            fontSize="2xs"
+                            fontWeight="semibold"
+                            color={BLUE}
+                          >
                             {getSkillLabel(n.type)}
-                          </Badge>
+                          </Box>
                         ))}
                       </Flex>
                     </Box>
 
-                    <Divider />
+                    <Box h="1px" bg={`${DARK}15`} />
 
                     {/* Input fields */}
                     <Box>
-                      <Text fontSize="xs" fontWeight="600" color="gray.500" mb={2} textTransform="uppercase">
+                      <Text fontSize="xs" fontWeight="700" color={BLUE} mb={2} textTransform="uppercase" letterSpacing="wide">
                         Execution Inputs
                       </Text>
-                      <VStack spacing={2} align="stretch">
+                      <VStack spacing={3} align="stretch">
                         <Box>
-                          <Text fontSize="2xs" color="gray.500" mb={1}>Wallet Address (recipient)</Text>
+                          <Text fontSize="2xs" color="gray.500" mb={1} fontWeight="600">Wallet Address (recipient)</Text>
                           <Input
                             size="sm"
+                            borderRadius="lg"
+                            border="1.5px solid"
+                            borderColor="gray.200"
+                            _focus={{ borderColor: BLUE, boxShadow: `0 0 0 1px ${BLUE}` }}
                             value={executeInputs.walletAddress ?? address ?? ""}
                             onChange={(e) => setExecuteInputs((p) => ({ ...p, walletAddress: e.target.value }))}
                             placeholder="0x..."
@@ -814,9 +880,13 @@ export function MyAgentsContent() {
                         </Box>
                         {execNodes.some((n) => n.type === "fetch_balance") && (
                           <Box>
-                            <Text fontSize="2xs" color="gray.500" mb={1}>Token (empty = BNB)</Text>
+                            <Text fontSize="2xs" color="gray.500" mb={1} fontWeight="600">Token (empty = BNB)</Text>
                             <Input
                               size="sm"
+                              borderRadius="lg"
+                              border="1.5px solid"
+                              borderColor="gray.200"
+                              _focus={{ borderColor: BLUE, boxShadow: `0 0 0 1px ${BLUE}` }}
                               value={executeInputs.token ?? ""}
                               onChange={(e) => setExecuteInputs((p) => ({ ...p, token: e.target.value }))}
                               placeholder="BNB or token contract address"
@@ -825,9 +895,13 @@ export function MyAgentsContent() {
                         )}
                         {execNodes.some((n) => n.type === "fetch_price") && (
                           <Box>
-                            <Text fontSize="2xs" color="gray.500" mb={1}>Token Address for Price (empty = BNB)</Text>
+                            <Text fontSize="2xs" color="gray.500" mb={1} fontWeight="600">Token Address for Price (empty = BNB)</Text>
                             <Input
                               size="sm"
+                              borderRadius="lg"
+                              border="1.5px solid"
+                              borderColor="gray.200"
+                              _focus={{ borderColor: BLUE, boxShadow: `0 0 0 1px ${BLUE}` }}
                               value={executeInputs.tokenAddress ?? ""}
                               onChange={(e) => setExecuteInputs((p) => ({ ...p, tokenAddress: e.target.value }))}
                               placeholder="0x... or leave empty for BNB"
@@ -837,9 +911,13 @@ export function MyAgentsContent() {
                         {execNodes.some((n) => n.type === "mint_token" || n.type === "mint_nft") && (
                           <>
                             <Box>
-                              <Text fontSize="2xs" color="gray.500" mb={1}>Recipient (defaults to your wallet)</Text>
+                              <Text fontSize="2xs" color="gray.500" mb={1} fontWeight="600">Recipient (defaults to your wallet)</Text>
                               <Input
                                 size="sm"
+                                borderRadius="lg"
+                                border="1.5px solid"
+                                borderColor="gray.200"
+                                _focus={{ borderColor: BLUE, boxShadow: `0 0 0 1px ${BLUE}` }}
                                 value={executeInputs.recipient ?? ""}
                                 onChange={(e) => setExecuteInputs((p) => ({ ...p, recipient: e.target.value }))}
                                 placeholder={address ?? "0x..."}
@@ -847,9 +925,13 @@ export function MyAgentsContent() {
                             </Box>
                             {execNodes.some((n) => n.type === "mint_token") && (
                               <Box>
-                                <Text fontSize="2xs" color="gray.500" mb={1}>Mint Amount (tokens)</Text>
+                                <Text fontSize="2xs" color="gray.500" mb={1} fontWeight="600">Mint Amount (tokens)</Text>
                                 <Input
                                   size="sm"
+                                  borderRadius="lg"
+                                  border="1.5px solid"
+                                  borderColor="gray.200"
+                                  _focus={{ borderColor: BLUE, boxShadow: `0 0 0 1px ${BLUE}` }}
                                   value={executeInputs.amount ?? "1000"}
                                   onChange={(e) => setExecuteInputs((p) => ({ ...p, amount: e.target.value }))}
                                   placeholder="1000"
@@ -862,18 +944,21 @@ export function MyAgentsContent() {
                     </Box>
 
                     <Button
-                      bg="green.500"
+                      bg={BLUE}
                       color="white"
-                      _hover={{ bg: "green.600" }}
+                      _hover={{ bg: "#241388" }}
                       leftIcon={<Play size={16} />}
                       onClick={handleExecuteRun}
                       size="lg"
+                      borderRadius="lg"
+                      fontWeight="600"
+                      boxShadow={`0 2px 8px -2px ${BLUE}40`}
                       isDisabled={!executeTarget.walletAddress || parseFloat(agentBalance) < 0.001}
                     >
                       Execute Agent
                     </Button>
                     {executeTarget.walletAddress && parseFloat(agentBalance) < 0.001 && (
-                      <Text fontSize="2xs" color="orange.500" textAlign="center">
+                      <Text fontSize="2xs" color="#DD6B20" textAlign="center" fontWeight="500">
                         Fund the agent with at least 0.001 BNB for gas fees
                       </Text>
                     )}
@@ -885,14 +970,17 @@ export function MyAgentsContent() {
               {executionPhase === "executing" && (
                 <motion.div key="executing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <VStack spacing={3} align="stretch">
-                    <HStack justify="center" mb={2}>
-                      <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                        <Bot size={24} style={{ color: "#180E67" }} />
-                      </motion.div>
-                      <Text fontSize="sm" color="bauhaus.blue" fontWeight="600">
-                        Agent is executing skills...
-                      </Text>
-                    </HStack>
+                    <Box bg={SMALL_BOX} borderRadius="lg" p={3} border="2px solid" borderColor={`${BLUE}30`} boxShadow={`3px 3px 0 0 ${BLUE}20`}>
+                      <HStack justify="center">
+                        <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}>
+                          <Bot size={20} style={{ color: BLUE }} />
+                        </motion.div>
+                        <Text fontSize="sm" color={BLUE} fontWeight="700">
+                          Agent is executing skills...
+                        </Text>
+                        <Spinner size="xs" color={BLUE} ml={1} />
+                      </HStack>
+                    </Box>
                     {execNodes.map((node, i) => (
                       <AnimatedNodeResult
                         key={node.id}
@@ -907,18 +995,37 @@ export function MyAgentsContent() {
               )}
 
               {/* ─── PHASE 3: Results ─── */}
-              {executionPhase === "results" && (
+              {executionPhase === "results" && (() => {
+                const errorCount = execNodes.filter((n) => nodeStatuses[n.id] === "error").length;
+                const successCount = execNodes.filter((n) => nodeStatuses[n.id] === "done").length;
+                const allFailed = errorCount > 0 && successCount === 0;
+                const partial = errorCount > 0 && successCount > 0;
+                const bannerColor = allFailed ? "#E53E3E" : partial ? "#DD6B20" : "#208040";
+                return (
                 <motion.div key="results" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                   <VStack spacing={3} align="stretch">
-                    <Box bg="green.50" borderRadius="lg" p={4} border="1px solid" borderColor="green.200" textAlign="center">
+                    <Box
+                      bg={`${bannerColor}10`}
+                      borderRadius="lg" p={4}
+                      border="2px solid"
+                      borderColor={`${bannerColor}40`}
+                      boxShadow={`3px 3px 0 0 ${bannerColor}20`}
+                      textAlign="center"
+                    >
                       <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", damping: 10 }}>
-                        <CheckCircle size={32} style={{ color: "#38A169", margin: "0 auto 8px" }} />
+                        {allFailed ? (
+                          <AlertCircle size={32} style={{ color: "#E53E3E", margin: "0 auto 8px" }} />
+                        ) : partial ? (
+                          <AlertCircle size={32} style={{ color: "#DD6B20", margin: "0 auto 8px" }} />
+                        ) : (
+                          <CheckCircle size={32} style={{ color: "#208040", margin: "0 auto 8px" }} />
+                        )}
                       </motion.div>
-                      <Text fontSize="md" fontWeight="700" color="green.700">
-                        Execution Complete
+                      <Text fontSize="md" fontWeight="700" color={bannerColor}>
+                        {allFailed ? "Execution Failed" : partial ? "Partial Success" : "Execution Complete"}
                       </Text>
-                      <Text fontSize="xs" color="green.600">
-                        {executeResults?.nodeCount} skill{(executeResults?.nodeCount ?? 0) > 1 ? "s" : ""} executed
+                      <Text fontSize="xs" color={`${bannerColor}CC`}>
+                        {successCount} passed, {errorCount} failed of {executeResults?.nodeCount} skill{(executeResults?.nodeCount ?? 0) > 1 ? "s" : ""}
                       </Text>
                     </Box>
 
@@ -932,12 +1039,22 @@ export function MyAgentsContent() {
                       />
                     ))}
 
-                    <Button variant="ghost" onClick={handleExecuteClose} color="gray.500" mt={2}>
+                    <Button
+                      variant="outline"
+                      onClick={handleExecuteClose}
+                      color={DARK}
+                      borderColor="gray.300"
+                      _hover={{ bg: SMALL_BOX, borderColor: BLUE }}
+                      borderRadius="lg"
+                      fontWeight="600"
+                      mt={2}
+                    >
                       Close
                     </Button>
                   </VStack>
                 </motion.div>
-              )}
+                );
+              })()}
             </AnimatePresence>
           </ModalBody>
         </ModalContent>

@@ -1,5 +1,7 @@
 // API client — localStorage-backed agent storage, server API only for deploy/execute
 
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
+
 export interface CanvasBlock {
   id: string;
   type: string;
@@ -28,6 +30,7 @@ export interface AgentFromAPI {
   status: AgentStatus;
   workerUrl: string | null;
   walletAddress: string | null;
+  walletPrivateKey?: string | null;
   createdAt: string;
   updatedAt: string;
   deployments?: Array<{
@@ -36,6 +39,52 @@ export interface AgentFromAPI {
     workerUrl: string | null;
     createdAt: string;
   }>;
+}
+
+function createAgentWallet(): { address: string; privateKey: string } {
+  const privateKey = generatePrivateKey();
+  const account = privateKeyToAccount(privateKey);
+  return { address: account.address, privateKey };
+}
+
+// ─── AES-GCM encryption (keyed per agent ID) ───
+
+async function deriveKey(agentId: string): Promise<CryptoKey> {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    "raw", enc.encode(agentId), "PBKDF2", false, ["deriveKey"]
+  );
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt: enc.encode("clawbnb-agent-salt"), iterations: 100000, hash: "SHA-256" },
+    keyMaterial,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"]
+  );
+}
+
+async function encryptPK(agentId: string, plaintext: string): Promise<string> {
+  const key = await deriveKey(agentId);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt(
+    { name: "AES-GCM", iv },
+    key,
+    new TextEncoder().encode(plaintext)
+  );
+  // Store as iv:ciphertext in base64
+  const combined = new Uint8Array(iv.length + new Uint8Array(ct).length);
+  combined.set(iv);
+  combined.set(new Uint8Array(ct), iv.length);
+  return btoa(String.fromCharCode(...combined));
+}
+
+async function decryptPK(agentId: string, encrypted: string): Promise<string> {
+  const key = await deriveKey(agentId);
+  const data = Uint8Array.from(atob(encrypted), (c) => c.charCodeAt(0));
+  const iv = data.slice(0, 12);
+  const ct = data.slice(12);
+  const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, ct);
+  return new TextDecoder().decode(plain);
 }
 
 // ─── localStorage helpers ───
@@ -107,14 +156,18 @@ export async function saveAgent(
     }
   }
 
+  const wallet = createAgentWallet();
+  const agentId = uuid();
+  const encryptedKey = await encryptPK(agentId, wallet.privateKey);
   const newAgent: AgentFromAPI = {
-    id: uuid(),
+    id: agentId,
     name: agent.name,
     description: agent.description ?? null,
     canvasJson: { nodes: agent.nodes, edges: agent.edges },
     status: "draft",
     workerUrl: null,
-    walletAddress: null,
+    walletAddress: wallet.address,
+    walletPrivateKey: encryptedKey,
     createdAt: now,
     updatedAt: now,
   };
@@ -141,12 +194,17 @@ export async function duplicateAgent(_walletAddress: string, id: string): Promis
   if (!original) return null;
 
   const now = new Date().toISOString();
+  const cloneWallet = createAgentWallet();
+  const cloneId = uuid();
+  const encryptedCloneKey = await encryptPK(cloneId, cloneWallet.privateKey);
   const clone: AgentFromAPI = {
     ...original,
-    id: uuid(),
+    id: cloneId,
     name: `Copy of ${original.name}`,
     status: "draft",
     workerUrl: null,
+    walletAddress: cloneWallet.address,
+    walletPrivateKey: encryptedCloneKey,
     createdAt: now,
     updatedAt: now,
     canvasJson: {
@@ -202,11 +260,13 @@ export async function deployAgent(
 // ─── Get agent wallet balance ───
 
 export async function getAgentBalance(
-  walletAddress: string,
+  _walletAddress: string,
   agentId: string
 ): Promise<{ agentWallet: string; balanceWei: string; balanceFormatted: string }> {
+  const agent = readAgents().find((a) => a.id === agentId);
+  if (!agent?.walletAddress) throw new Error("Agent wallet not found");
   const res = await fetch(
-    `/api/agents/${agentId}/balance?wallet=${encodeURIComponent(walletAddress)}`
+    `/api/agents/${agentId}/balance?agentWallet=${encodeURIComponent(agent.walletAddress)}`
   );
   if (!res.ok) throw new Error("Failed to fetch agent balance");
   return res.json();
@@ -228,10 +288,29 @@ export async function executeAgent(
   agentId: string,
   input?: Record<string, unknown>
 ): Promise<ExecuteAgentResult> {
+  const agent = readAgents().find((a) => a.id === agentId);
+
+  // Decrypt the private key before sending to server
+  let decryptedKey: string | undefined;
+  if (agent?.walletPrivateKey && agent.id) {
+    try {
+      decryptedKey = await decryptPK(agent.id, agent.walletPrivateKey);
+    } catch {
+      decryptedKey = undefined;
+    }
+  }
+
   const res = await fetch(`/api/agents/${agentId}/execute`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ walletAddress, input: input || {} }),
+    body: JSON.stringify({
+      walletAddress,
+      agentName: agent?.name,
+      canvasJson: agent?.canvasJson,
+      agentWalletAddress: agent?.walletAddress,
+      agentPrivateKey: decryptedKey,
+      input: input || {},
+    }),
   });
   return res.json();
 }

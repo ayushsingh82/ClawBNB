@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/server/db";
 import { skillExecutors } from "@/lib/server/services/skillExecutors";
 import type { ExecutionContext } from "@/lib/server/types/skillExecutor";
 
@@ -10,15 +9,10 @@ interface CanvasNode {
   config?: Record<string, string>;
 }
 
-interface CanvasJson {
-  nodes: CanvasNode[];
-  edges: Array<{ source: string; target: string }>;
-}
-
 /**
  * POST /api/agents/[id]/execute
  * Server-side execution using the agent's own wallet for signing.
- * Body: { walletAddress: string, input?: Record<string, unknown> }
+ * Body: { walletAddress, agentName, canvasJson, agentWalletAddress, agentPrivateKey, input? }
  */
 export async function POST(
   request: NextRequest,
@@ -26,45 +20,29 @@ export async function POST(
 ) {
   const { id } = await params;
   const body = await request.json();
-  const { walletAddress, input } = body;
+  const { walletAddress, agentName, canvasJson, agentWalletAddress, agentPrivateKey, input } = body;
 
   if (!walletAddress) {
     return NextResponse.json({ error: "walletAddress required" }, { status: 400 });
   }
 
-  const normalizedWallet = walletAddress.toLowerCase();
-
-  const user = await prisma.user.findUnique({
-    where: { walletAddress: normalizedWallet },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
-
-  const agent = await prisma.agent.findFirst({
-    where: { id, userId: user.id },
-  });
-  if (!agent) {
-    return NextResponse.json({ error: "Agent not found" }, { status: 404 });
-  }
-
-  const canvas = agent.canvasJson as unknown as CanvasJson;
-  const nodes = canvas?.nodes?.filter((n) => n.type !== "agent_center") ?? [];
+  const nodes: CanvasNode[] = (canvasJson?.nodes ?? []).filter(
+    (n: CanvasNode) => n.type !== "agent_center"
+  );
 
   if (nodes.length === 0) {
     return NextResponse.json({ error: "Agent has no skill nodes" }, { status: 400 });
   }
 
-  // Build execution context — private key stays server-side only
   const context: ExecutionContext = {
     input: {
       walletAddress,
-      agentWalletAddress: agent.walletAddress || undefined,
-      agentPrivateKey: agent.walletPrivateKey || undefined,
+      agentWalletAddress: agentWalletAddress || undefined,
+      agentPrivateKey: agentPrivateKey || undefined,
       ...(input || {}),
     },
     results: {},
-    agentId: agent.id,
+    agentId: id,
   };
 
   const results: Record<string, unknown> = {};
@@ -86,8 +64,8 @@ export async function POST(
   }
 
   return NextResponse.json({
-    agentId: agent.id,
-    agentName: agent.name,
+    agentId: id,
+    agentName: agentName || "Agent",
     executedAt: new Date().toISOString(),
     nodeCount: nodes.length,
     results,
