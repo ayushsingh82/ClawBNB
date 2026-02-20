@@ -7,7 +7,7 @@ import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { bscTestnet } from "../lib/chains";
 
 const config = getDefaultConfig({
-  appName: "BNB-vibe",
+  appName: "ClawBNB",
   projectId: "9d291c9ca32cc72547aa3ef37711529038741c63" ,
   chains: [bscTestnet],
   ssr: true,

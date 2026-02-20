@@ -114,7 +114,7 @@ export function Navigation() {
               fontSize="md"
               color={PRIMARY}
             >
-              BNB-vibe
+              ClawBNB
             </Text>
           </DrawerHeader>
           <DrawerBody pt={8}>

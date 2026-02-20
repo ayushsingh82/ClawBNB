@@ -169,7 +169,7 @@ export function TokenSection() {
                     )}
                   </HStack>
                   <Text fontSize="sm" color="gray.500">
-                    BNB-vibe on BSC
+                    ClawBNB on BSC
                   </Text>
                 </VStack>
               </HStack>

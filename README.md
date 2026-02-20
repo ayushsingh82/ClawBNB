@@ -6,6 +6,12 @@ ClawBNB lets anyone create on-chain AI agents through a visual drag-and-drop int
 
 ---
 
+## Demo
+
+<video src="assets/ClawBNB.mov" controls width="100%"></video>
+
+---
+
 ## The Problem
 
 Building on-chain automation today requires deep Solidity knowledge, backend infrastructure, and DevOps expertise. There's no easy way for non-developers to create agents that interact with DeFi protocols, mint tokens, or monitor on-chain state autonomously.

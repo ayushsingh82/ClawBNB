@@ -26,7 +26,7 @@ export function Footer() {
                 fontSize="lg"
                 fontFamily="var(--font-serif), Georgia, serif"
               >
-                BNB-vibe
+                ClawBNB
               </Text>
               <Text
                 color="gray.400"
@@ -49,7 +49,7 @@ export function Footer() {
             w="full"
           >
             <Text color="gray.500" fontSize="sm">
-              © {new Date().getFullYear()} BNB-vibe
+              © {new Date().getFullYear()} ClawBNB
             </Text>
           </Flex>
         </VStack>

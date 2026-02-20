@@ -161,7 +161,7 @@ export const skillExecutors: Record<string, SkillExecutor> = {
         status: result.status,
         recipient,
         amount,
-        tokenName: config.tokenName || "BNB-vibe Token",
+        tokenName: config.tokenName || "ClawBNB Token",
         symbol: config.symbol || "NCLAW",
         explorerUrl: `https://testnet.bscscan.com/tx/${result.txHash}`,
       };

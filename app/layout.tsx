@@ -20,8 +20,8 @@ const lora = Lora({
 });
 
 export const metadata: Metadata = {
-  title: "BNB-vibe",
-  description: "Build agents with drag and drop. No code — design triggers, actions, and tools on the canvas. Powered by BSC.",
+  title: "ClawBNB",
+  description: "Build autonomous AI agents with drag and drop. No code — design triggers, actions, and tools on the canvas. Powered by BSC.",
 };
 
 export default function RootLayout({
