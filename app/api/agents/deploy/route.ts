@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/server/db";
-import { DeploymentRunner } from "@/lib/server/services/deploymentRunner";
+import { AgentFactoryService } from "@/lib/server/services/agentFactory";
 
-const deploymentRunner = new DeploymentRunner();
+const factory = new AgentFactoryService();
 
 /**
  * POST /api/agents/deploy
- * Body: { agentId, walletAddress, skills }
+ * Body: { agentId, agentName, walletAddress, skills, txHash, canvasJson }
  */
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { agentId, walletAddress, skills, txHash } = body;
+  const { agentId, agentName, walletAddress, skills, txHash, canvasJson } = body;
 
   if (!agentId || !walletAddress) {
     return NextResponse.json(
@@ -26,44 +25,38 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const normalizedWallet = walletAddress.toLowerCase();
-
-  // Look up user
-  const user = await prisma.user.findUnique({
-    where: { walletAddress: normalizedWallet },
-  });
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
-
-  // Verify agent belongs to user
-  const agent = await prisma.agent.findFirst({
-    where: { id: agentId, userId: user.id },
-  });
-  if (!agent) {
-    return NextResponse.json({ error: "Agent not found" }, { status: 404 });
-  }
-
-  // Run deployment pipeline
-  const result = await deploymentRunner.runDeployment({
-    agentId,
-    userId: user.id,
-  });
-
-  if (!result.success) {
+  if (!canvasJson?.nodes?.length) {
     return NextResponse.json(
-      { error: result.error },
-      { status: 500 }
+      { error: "Agent has no skill nodes." },
+      { status: 400 }
     );
   }
 
-  return NextResponse.json({
-    deployed: true,
-    agentId,
-    workerUrl: result.workerUrl,
-    workerId: result.workerId,
-    skillCount: skills || 0,
-    txHash,
-    deployedAt: new Date().toISOString(),
-  });
+  try {
+    const result = await factory.deploy({
+      id: agentId,
+      name: agentName || "Untitled Agent",
+      canvasJson,
+    } as any);
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      deployed: true,
+      agentId,
+      workerUrl: result.workerUrl,
+      workerId: result.workerId,
+      skillCount: skills || 0,
+      txHash,
+      deployedAt: new Date().toISOString(),
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Deployment failed";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
