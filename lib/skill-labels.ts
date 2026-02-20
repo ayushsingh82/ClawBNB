@@ -25,8 +25,6 @@ export const SKILL_LABEL_MAP: Record<string, string> = {
   // Agent Integrations
   api_call: "API Call",
   webhook_notify: "Webhook Notify",
-  // Agent Payments
-  x402_pay: "x402 Pay",
   // Agent-centric extras
   query_user: "Query User",
   run_sub_agent: "Run Sub-Agent",

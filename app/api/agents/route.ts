@@ -3,7 +3,8 @@ import prisma from "@/lib/server/db";
 import { generateAgentWallet } from "@/lib/server/services/agentWallet";
 
 // Strip walletPrivateKey from agent objects before sending to client
-function stripPK<T extends Record<string, unknown>>(agent: T) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function stripPK(agent: any) {
   const { walletPrivateKey: _, ...safe } = agent;
   return safe;
 }
@@ -41,7 +42,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ agents: [] });
     }
 
-    return NextResponse.json({ agents: user.agents.map(stripPK) });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return NextResponse.json({ agents: (user as any).agents.map(stripPK) });
   } catch (err) {
     console.error("[GET /api/agents]", err);
     return NextResponse.json(
@@ -109,6 +111,8 @@ export async function POST(request: NextRequest) {
         status: "draft",
         walletAddress: wallet.address,
         walletPrivateKey: wallet.privateKey,
+        metadataUri: null,
+        workerUrl: null,
       },
     });
 

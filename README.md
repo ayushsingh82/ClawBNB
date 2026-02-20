@@ -1,112 +1,97 @@
-# BNB-vibe
+# ClawBNB — No-Code AI Agent Builder on BNB Chain
 
-**Autonomous AI agent builder on BSC Testnet — drag, drop, pay, deploy.**
+**Build, deploy, and monetize autonomous AI agents on BNB Chain — zero code required.**
 
-Build on-chain agents visually with a drag-and-drop canvas. Each agent gets its own wallet, signs transactions autonomously, and deploys to Cloudflare Workers — all powered by [x402](https://x402.org/) micropayments on BSC.
-
----
-
-## Demo Video
-
-> [Watch the 4-minute demo](<!-- VIDEO_LINK_HERE -->)
+ClawBNB lets anyone create on-chain AI agents through a visual drag-and-drop interface. Each agent gets its own wallet, executes transactions autonomously, and deploys to the edge in seconds. Deployment is gated by native tBNB micropayments — pay only for what you use.
 
 ---
 
-## Features
+## The Problem
 
-### Drag-and-Drop Agent Builder
-- Visual canvas with 20+ skill blocks across 5 categories
-- Curved SVG connections between agent node and skills
-- Zoom (50%-200%), search, favorites, and skill configuration drawer
-- Real-time cost calculation: 0.1 BUSD per skill via x402
+Building on-chain automation today requires deep Solidity knowledge, backend infrastructure, and DevOps expertise. There's no easy way for non-developers to create agents that interact with DeFi protocols, mint tokens, or monitor on-chain state autonomously.
+
+## Our Solution
+
+ClawBNB abstracts the entire stack into a visual builder:
+
+1. **Drag** skill blocks onto a canvas (mint tokens, fetch prices, call APIs, conditional logic...)
+2. **Connect** them to create agent workflows
+3. **Pay & Deploy** with a single tBNB transaction — agent goes live on Cloudflare's edge network
+4. **Execute** — each agent has its own wallet and signs transactions without user interaction
+
+---
+
+## Key Features
+
+### Visual Agent Builder
+- 20+ skill blocks across 5 categories: Actions, Data, Logic, Integrations, Payments
+- Drag-and-drop canvas with zoom, search, favorites, and per-block configuration
+- Real-time cost preview before deployment
 
 ### Autonomous Agent Wallets
-- Every agent gets its own wallet (private key generated server-side)
-- Agents sign and broadcast transactions **without user interaction**
-- Fund agent wallets with BNB for gas, then let them operate independently
-- Real on-chain transactions: mint ERC-20 tokens, mint NFTs, fetch balances
+- Every agent gets a dedicated wallet with server-side key management
+- Agents sign and broadcast transactions independently — no manual approval needed
+- Fund once, run forever: mint ERC-20s, mint NFTs, fetch balances, call external APIs
 
-### Animated Execution UI
-- **Phase 1: Fund** — View agent wallet address, check BNB balance, send gas funds
-- **Phase 2: Execute** — Watch skills light up one-by-one with staggered animations
-- **Phase 3: Results** — Transaction hashes with direct links to BSC explorer
+### Pay-Per-Deploy with tBNB
+- Deployment cost = `number of skills x 0.001 tBNB`
+- Native BNB Chain micropayments — no wrapped tokens, no approvals
+- Payment verified on-chain before deployment proceeds
 
-### Cloudflare Workers Deployment
-- Agents compile to ES module Cloudflare Workers with embedded skill logic
-- Full deployment pipeline: validate → generate code → deploy to edge → go live
-- Each agent gets a unique URL: `https://agent-{id}.workers.dev`
+### Edge Deployment (Cloudflare Workers)
+- Agents compile to self-contained ES module Workers
+- Full pipeline: validate graph -> generate code -> deploy to edge -> live URL
+- Each agent gets a unique endpoint: `https://agent-{id}.workers.dev`
+- Health check, execution, and graph introspection endpoints out of the box
 
-### x402 Micropayments
-- Pay-per-deploy: cost = number of skills x 0.1 BUSD
-- Premium content gating: unlock exclusive content for 0.001 BUSD
-- Real payments via x402 facilitator on BSC Testnet (chain ID 97)
-
-### Live Token Dashboard
-- Real-time price chart (lightweight-charts) with 1-minute candles from nad.fun API
-- Chart polls every 10s, token data polls every 8s
-- Metrics panel: price USD/BNB, FDV, holder count, ATH
-- Timeframe selector (30M / 1H / 4H / 24H) with txns, volume, and maker stats
-- Buy/sell bar indicators and direct "Buy on nad.fun" CTA
-
----
-
-## Skills
-
-### Fully Implemented (Phase 1)
-| Skill | Description |
-|-------|-------------|
-| `fetch_price` | Live token prices via CoinGecko |
-| `fetch_balance` | Wallet balance on BSC via RPC |
-| `mint_token` | Mint ERC-20 tokens (agent wallet signs tx) |
-| `mint_nft` | Mint NFTs (agent wallet signs tx) |
-| `api_call` | HTTP GET/POST/PUT/DELETE with custom headers |
-| `webhook_notify` | POST to webhook URL with agent context |
-| `x402_pay` | Micropayment via x402 protocol |
-| `conditional` | If/else logic with JS condition evaluation |
-| `loop` | Repeat actions N times with interval |
-| `store_result` | Persist execution results with TTL |
-| `notify_user` | Send notification to user |
-
-### Stubbed (Phase 2)
-`transfer_asset` | `create_dao` | `send_email` | `set_reminder` | `create_task` | `schedule_meeting` | `fetch_states` | `fetch_transactions` | `query_user` | `run_sub_agent`
+### Animated Execution Dashboard
+- **Fund phase** — view agent wallet, check balance, send gas
+- **Execute phase** — watch skills light up sequentially with staggered animations
+- **Results phase** — transaction hashes with direct BscScan links
 
 ---
 
 ## Architecture
 
 ```
-User → Landing Page (Next.js 16)
-         ├── Token Dashboard (nad.fun API → live chart + metrics)
-         ├── Agent Builder (/ab) → Drag & drop skills → Configure
-         │     └── Deploy Claw → x402 payment → Cloudflare Workers
-         ├── My Agents (/myagents) → Fund wallet → Execute → Animated results
-         └── Premium (/premium) → x402 micropayment → Unlock content
+Frontend (Next.js 16 + Chakra UI)
+  ├── Agent Builder (/ab)         — Visual canvas, drag-and-drop skills
+  ├── My Agents (/myagents)       — Manage, fund, execute, view results
+  ├── Mint (/premium)             — Claim ERC-20 & ERC-721 tokens
+  └── Landing (/)                 — Hero, features, live token dashboard
 
-Backend:
-  ├── PostgreSQL (Prisma 7) → Users, Agents, Deployments
-  ├── Agent Wallet Service (viem) → Key generation, tx signing
-  ├── Skill Executors → fetch_price, mint_token, api_call, etc.
-  ├── Agent Factory → Generate Cloudflare Worker code
-  └── Deployment Runner → Full deploy pipeline to CF edge
+API Layer (Next.js Route Handlers)
+  ├── /api/agents                 — CRUD + deploy pipeline
+  ├── /api/agents/[id]/execute    — Server-side agent execution
+  └── /api/token                  — Live price & chart data
+
+Services
+  ├── Agent Factory               — Generates Cloudflare Worker code from graph
+  ├── Deployment Runner           — End-to-end deploy pipeline
+  ├── Agent Wallet Service        — Key generation + tx signing (viem)
+  └── Skill Executors             — Runtime implementations per skill type
+
+Infrastructure
+  ├── JSON File DB (local dev) / PostgreSQL + Prisma (production)
+  ├── Cloudflare Workers          — Agent runtime at the edge
+  └── BSC Testnet (chain 97)     — All on-chain transactions
 ```
 
 ---
-
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
 | Framework | Next.js 16 (App Router, Turbopack) |
-| Database | PostgreSQL + Prisma 7 |
-| Blockchain | BSC Testnet (chain 97) |
-| Payments | x402 protocol (BUSD micropayments) |
-| Wallet | RainbowKit + wagmi + viem |
-| Agent Deploy | Cloudflare Workers (ES modules) |
-| Agent Signing | viem (server-side walletClient) |
-| Charts | lightweight-charts (TradingView) |
 | UI | Chakra UI + Framer Motion |
-| Token Data | nad.fun API (api.nadapp.net) |
+| Blockchain | BNB Smart Chain Testnet (chain 97) |
+| Wallet | RainbowKit + wagmi v2 + viem v2 |
+| Payments | Native tBNB micropayments |
+| Agent Runtime | Cloudflare Workers (ES modules) |
+| Agent Signing | viem server-side walletClient |
+| Charts | lightweight-charts (TradingView) |
+| Database | JSON file DB (dev) / PostgreSQL + Prisma 7 (prod) |
 
 ---
 
@@ -114,9 +99,28 @@ Backend:
 
 | Contract | Address |
 |----------|---------|
-| MintToken (ERC-20) | Deploy on BSC testnet |
-| MintNFT (ERC-721) | Deploy on BSC testnet |
-| BUSD (Test) | `0xeD24FC36d5Ee211Ea25A802eFb36D4e25A3c0792` |
+| MintToken (ERC-20) | `0xe936e65D9F598059579E3Dc74E98514124538398` |
+| MintNFT (ERC-721) | `0x1451A67F6527B6B37CFCA506dab9E5Fdcd6b9bd2` |
+
+---
+
+## Skills
+
+| Skill | Status | Description |
+|-------|--------|-------------|
+| `fetch_price` | Live | Token prices via CoinGecko API |
+| `fetch_balance` | Live | Wallet balance via BSC RPC |
+| `mint_token` | Live | Mint ERC-20 (agent wallet signs tx) |
+| `mint_nft` | Live | Mint ERC-721 (agent wallet signs tx) |
+| `api_call` | Live | HTTP requests with custom headers |
+| `webhook_notify` | Live | POST to webhook with agent context |
+| `conditional` | Live | If/else branching with JS expressions |
+| `loop` | Live | Repeat N times with configurable interval |
+| `store_result` | Live | Persist results with TTL |
+| `notify_user` | Live | Push notifications to agent owner |
+| `transfer_asset` | Planned | Transfer tokens between wallets |
+| `create_dao` | Planned | Deploy governance contracts |
+| `run_sub_agent` | Planned | Chain agents together |
 
 ---
 
@@ -126,12 +130,6 @@ Backend:
 # Install dependencies
 npm install
 
-# Start Prisma dev server (embedded PostgreSQL)
-npx prisma dev --detach
-
-# Run migrations
-npx prisma migrate dev
-
 # Start dev server
 npm run dev
 ```
@@ -140,11 +138,36 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ### Environment Variables
 
+Copy `.env.example` to `.env` and fill in:
+
 ```env
-DATABASE_URL="prisma+postgres://..."    # From prisma dev
-CLOUDFLARE_API_TOKEN=your_cf_token      # Cloudflare Workers API
-CLOUDFLARE_ACCOUNT_ID=your_cf_account   # Cloudflare account
-PAY_TO_ADDRESS=0x...                    # x402 payment recipient
+CLOUDFLARE_API_TOKEN=              # Cloudflare Workers API token
+CLOUDFLARE_ACCOUNT_ID=             # Cloudflare account ID
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=  # WalletConnect project ID
+NEXT_PUBLIC_DEPLOY_FEE_ADDRESS=    # Wallet receiving deploy fees
+```
+
+---
+
+## How It Works
+
+```
+User connects wallet
+       │
+       ▼
+Drags skills onto canvas ──► Configures each block
+       │
+       ▼
+Clicks "Pay & Deploy"
+       │
+       ├── Saves agent to DB
+       ├── Sends tBNB payment (0.001 × skills)
+       ├── Generates Cloudflare Worker code
+       └── Deploys to edge ──► Agent is LIVE
+                                    │
+                                    ▼
+                          Agent executes autonomously
+                          (own wallet, signs txs, calls APIs)
 ```
 
 ---
@@ -153,32 +176,21 @@ PAY_TO_ADDRESS=0x...                    # x402 payment recipient
 
 | Route | Description |
 |-------|-------------|
-| `/` | Landing page — Hero, features, live token dashboard |
-| `/ab` | Agent Builder — drag-and-drop canvas |
-| `/myagents` | My Agents — manage, fund, execute, view results |
-| `/premium` | x402 premium content unlock |
-| `/profile` | Share profile and agents |
-
-### API Routes
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/agents` | GET/POST | List and create agents |
-| `/api/agents/[id]` | GET/PATCH/DELETE | Agent CRUD |
-| `/api/agents/[id]/balance` | GET | Agent wallet BNB balance |
-| `/api/agents/[id]/execute` | POST | Execute agent (server-side signing) |
-| `/api/agents/[id]/duplicate` | POST | Clone an agent |
-| `/api/agents/deploy` | GET/POST | x402 payment + deploy to Cloudflare |
-| `/api/token` | GET | Live token price, metrics, holders |
-| `/api/token/chart` | GET | Live OHLCV chart data from nad.fun |
-| `/api/premium` | GET | x402 micropayment content gate |
+| `/` | Landing — hero, features, token dashboard |
+| `/ab` | Agent Builder — visual drag-and-drop canvas |
+| `/myagents` | My Agents — manage, fund, execute agents |
+| `/premium` | Mint ERC-20 and ERC-721 tokens |
 
 ---
 
-## Deploy
+## What's Next
 
-Deploy frontend to [Vercel](https://vercel.com). Set environment variables in Vercel dashboard. Ensure `prisma dev` is running locally with port forwarded via VS Code tunnels or use a hosted PostgreSQL (Neon, Supabase).
+- Multi-agent orchestration (agents calling agents)
+- On-chain event triggers (react to transfers, swaps, governance votes)
+- Agent marketplace — publish and monetize agent templates
+- Mainnet deployment with real BNB payments
+- AI-powered skill suggestions based on agent goals
 
 ---
 
-Built with x402 on BSC Testnet.
+Built for BNB Chain hackathon. Powered by BSC Testnet, Cloudflare Workers, and native tBNB micropayments.

@@ -81,16 +81,6 @@ const notifyUser: SkillExecutor = async (config, context) => {
   };
 };
 
-const x402Pay: SkillExecutor = async (config) => {
-  return {
-    paymentRequired: true,
-    url: config.recipientUrl,
-    amount: config.amount || "0.001",
-    network: "eip155:97",
-    asset: "USDC",
-  };
-};
-
 const conditional: SkillExecutor = async (config, context) => {
   const condition = config.condition || "true";
   const input = context.input || {};
@@ -144,7 +134,6 @@ export const skillExecutors: Record<string, SkillExecutor> = {
   webhook_notify: webhookNotify,
   fetch_price: fetchPrice,
   notify_user: notifyUser,
-  x402_pay: x402Pay,
   conditional,
   loop,
 
@@ -243,7 +232,6 @@ export function listImplementedSkills(): string[] {
     "webhook_notify",
     "fetch_price",
     "notify_user",
-    "x402_pay",
     "conditional",
     "loop",
     "store_result",

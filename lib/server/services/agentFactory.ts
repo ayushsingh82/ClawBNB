@@ -1,5 +1,5 @@
 import { logger } from "./logger";
-import type { Agent } from "@prisma/client";
+import type { Agent } from "../local-db";
 
 interface CanvasNode {
   id: string;
@@ -164,20 +164,6 @@ const executors = {
     };
   },
 
-  async x402_pay(config, context) {
-    const url = config.recipientUrl;
-    const amount = config.amount || "0.001";
-    // x402 payment is initiated by the caller with proper wallet signing
-    // Worker returns the payment requirement for the client to fulfill
-    return {
-      paymentRequired: true,
-      url,
-      amount,
-      network: "eip155:97",
-      asset: "USDC",
-    };
-  },
-
   async conditional(config, context) {
     const condition = config.condition || "true";
     const input = context.input || {};
@@ -212,7 +198,7 @@ const executors = {
 
   // Phase 2 stubs: return schema-valid placeholder responses
   async mint_token(config, context) {
-    const MINT_TOKEN_ADDRESS = "0xC4f1FE9aa172c6EA81DbDe0185ba0Bfbbb638340";
+    const MINT_TOKEN_ADDRESS = "0xe936e65D9F598059579E3Dc74E98514124538398";
     const MINT_SELECTOR = "0x40c10f19";
     const to = config.recipient || context.input?.recipient || context.input?.walletAddress || "";
     const amount = config.amount || context.input?.amount || "1000";
@@ -238,8 +224,22 @@ const executors = {
       description: "Sign this transaction to mint tokens on BSC testnet",
     };
   },
-  async mint_nft(config) {
-    return { stub: true, action: "mint_nft", config, message: "NFT minting requires on-chain transaction signing" };
+  async mint_nft(config, context) {
+    const MINT_NFT_ADDRESS = "0x1451A67F6527B6B37CFCA506dab9E5Fdcd6b9bd2";
+    const to = config.recipient || context.input?.recipient || context.input?.walletAddress || "";
+    const metadataUri = config.metadataUri || config.uri || "ipfs://nadclaw-nft-placeholder";
+    if (!to || !to.startsWith("0x")) {
+      return { error: "No valid recipient address. Pass walletAddress or recipient in input.", requiresSignature: true, action: "mint_nft" };
+    }
+    return {
+      requiresSignature: true,
+      action: "mint_nft",
+      contractAddress: MINT_NFT_ADDRESS,
+      chainId: 97,
+      to,
+      metadataUri,
+      description: "Sign this transaction to mint an NFT on BSC testnet",
+    };
   },
   async transfer_asset(config) {
     return { stub: true, action: "transfer_asset", config, message: "Asset transfer requires on-chain transaction signing" };

@@ -126,12 +126,13 @@ export async function duplicateAgent(walletAddress: string, id: string): Promise
 export async function deployAgent(
   walletAddress: string,
   agentId: string,
-  skills: number
+  skills: number,
+  txHash: string
 ): Promise<{ deployed: boolean; workerUrl?: string; error?: string }> {
   const res = await fetch("/api/agents/deploy", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ walletAddress, agentId, skills }),
+    body: JSON.stringify({ walletAddress, agentId, skills, txHash }),
   });
   const data = await res.json();
   if (!res.ok) {

@@ -1,21 +1,12 @@
 /**
- * x402 config for BSC Testnet.
- * Used by the premium API route and the client unlock flow.
+ * Contract addresses for BSC Testnet (chain 97).
+ * MintToken (ERC20) and MintNFT (ERC721) deployed contracts.
  */
 
 export const BSC_NETWORK = "eip155:97" as const;
-export const BSC_USDC_TESTNET = "0xeD24FC36d5Ee211Ea25A802eFb36D4e25A3c0792" as const; // BUSD on BSC testnet
-export const FACILITATOR_URL = "https://x402-facilitator.molandak.org";
-export const PREMIUM_PRICE_USDC = "0.001";
-/** Price per agent feature / block type (0.1 BUSD) */
-export const FEATURE_PRICE_USDC = "0.1";
 
-/** x402 merchant address — receives deployment payments on BSC testnet. Override with PAY_TO_ADDRESS in .env */
-export const MERCHANT_ADDRESS = "0xB822B51A88E8a03fCe0220B15Cb2C662E42Adec1" as const;
+/** MintToken ERC20 contract on BSC Testnet */
+export const MINT_TOKEN_ADDRESS = "0xe936e65D9F598059579E3Dc74E98514124538398" as const;
 
-export const x402ClientConfig = {
-  chainId: BSC_NETWORK,
-  usdcAddress: BSC_USDC_TESTNET,
-  facilitator: FACILITATOR_URL,
-  price: PREMIUM_PRICE_USDC,
-} as const;
+/** MintNFT ERC721 contract on BSC Testnet */
+export const MINT_NFT_ADDRESS = "0x1451A67F6527B6B37CFCA506dab9E5Fdcd6b9bd2" as const;

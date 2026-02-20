@@ -141,9 +141,9 @@
 | Item | Status |
 |------|--------|
 | Network: Monad Testnet (`eip155:10143`) | DONE |
-| Token: USDC at `0x534b2f3A21130d7a60830c2Df862319e593943A3` | DONE |
+| Token: tBNB at `0x534b2f3A21130d7a60830c2Df862319e593943A3` | DONE |
 | Facilitator: `https://x402-facilitator.molandak.org` | DONE |
-| Price: `0.1 USDC` per unique skill type | DONE |
+| Price: `0.1 tBNB` per unique skill type | DONE |
 | Config: `402/x402-config.ts` | DONE |
 
 ---

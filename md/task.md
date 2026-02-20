@@ -55,7 +55,7 @@ The sidebar should feel **oriented around agent capabilities** (what a “Claw a
 
 **x402 per feature (0.1 Mon)**
 
-- **Every sidebar feature (block type) is paid:** Unlocking or using a block in the builder costs **0.1 Mon** (0.1 USDC or project-defined unit) via **x402**.
+- **Every sidebar feature (block type) is paid:** Unlocking or using a block in the builder costs **0.1 Mon** (0.1 tBNB or project-defined unit) via **x402**.
 - **Implementation options:**
   - **Option A:** When user **drags a block** onto the canvas, prompt for x402 payment (0.1 Mon) for that block type; only add the node after successful payment.
   - **Option B:** When user **first uses** a block type in a session, charge 0.1 Mon via x402 and then allow unlimited use of that type in that session or agent.
@@ -79,7 +79,7 @@ When the user clicks **Deploy Claw** (Deploy Agent), do **not** deploy immediate
    - On success: mark agent as deployed, redirect to My Agents or show success and refresh the list.
    - On failure (rejected, insufficient funds): show a clear error and keep the user on the deploy step so they can retry or cancel.
 
-**Reference:** `app/premium/page.tsx` (x402 client), `402/x402-config.ts`, `app/api/premium/route.ts`. Add a deploy-payment endpoint or extend an existing one to accept a variable amount (e.g. total in USDC/Mon).
+**Reference:** `app/premium/page.tsx` (x402 client), `402/x402-config.ts`, `app/api/premium/route.ts`. Add a deploy-payment endpoint or extend an existing one to accept a variable amount (e.g. total in tBNB/Mon).
 
 ---
 

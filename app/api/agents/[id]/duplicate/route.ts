@@ -59,6 +59,8 @@ export async function POST(
       status: "draft",
       walletAddress: wallet.address,
       walletPrivateKey: wallet.privateKey,
+      metadataUri: null,
+      workerUrl: null,
     },
   });
 

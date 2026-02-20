@@ -5,7 +5,7 @@
 - Node.js 18+
 - PostgreSQL (via Prisma local server)
 - Cloudflare account with Workers API token
-- Wallet with USDC on Monad Testnet (chain 10143)
+- Wallet with tBNB on Monad Testnet (chain 10143)
 
 ---
 
@@ -214,9 +214,9 @@ wallet_address → user → [agent_1, agent_2, ... agent_n]
 ## x402 Payment
 
 - **Network:** Monad Testnet (`eip155:10143`)
-- **Token:** USDC at `0x534b2f3A21130d7a60830c2Df862319e593943A3`
+- **Token:** tBNB at `0x534b2f3A21130d7a60830c2Df862319e593943A3`
 - **Facilitator:** `https://x402-facilitator.molandak.org`
-- **Price:** `0.1 USDC` per unique skill type
+- **Price:** `0.1 tBNB` per unique skill type
 - **Recipient:** Configured via `PAY_TO_ADDRESS` env var
 
 ---

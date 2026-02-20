@@ -1,7 +1,7 @@
 import prisma from "../db";
 import { logger } from "./logger";
 import { AgentFactoryService } from "./agentFactory";
-import type { AgentStatus } from "@prisma/client";
+import type { AgentStatus } from "../local-db";
 
 export interface DeployRequest {
   agentId: string;

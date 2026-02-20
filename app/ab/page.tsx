@@ -32,6 +32,7 @@ import {
 } from "@chakra-ui/react";
 import { useState, useCallback, useRef, useEffect, useMemo, Suspense } from "react";
 import { useAccount, useWalletClient } from "wagmi";
+import { parseEther } from "viem";
 import { useSearchParams, useRouter } from "next/navigation";
 import { AppShell } from "../AppShell";
 import {
@@ -51,7 +52,6 @@ import {
   Rocket,
   GitBranch,
   Globe,
-  DollarSign,
   User,
   BrainCircuit,
   Bell,
@@ -66,7 +66,6 @@ import {
   type CanvasEdge,
 } from "../../lib/api-client";
 import { getSkillLabel } from "../../lib/skill-labels";
-import { FEATURE_PRICE_USDC, x402ClientConfig } from "../../lib/x402-config";
 
 // ─── Bauhaus palette (matches theme/index.ts) ────────────────────────────────
 const BG = "#F5F0E8";
@@ -77,6 +76,9 @@ const SMALL_BOX = "#E8E4F0";
 
 const DOTTED_BG = `radial-gradient(circle, ${BLUE}18 1px, transparent 1px)`;
 const DOTTED_BG_SIZE = "22px 22px";
+
+const DEPLOY_FEE_PER_SKILL = "0.001"; // tBNB per distinct skill type
+const DEPLOY_FEE_ADDRESS = process.env.NEXT_PUBLIC_DEPLOY_FEE_ADDRESS as `0x${string}` | undefined;
 
 const AGENT_NODE_ID = "agent-node";
 const AGENT_SIZE = 90;
@@ -149,15 +151,6 @@ export const SIDEBAR_TOOLS: SidebarTool[] = [
       { type: "run_sub_agent", label: "Run Sub-Agent", description: "Invoke another agent" },
       { type: "notify_user", label: "Notify User", description: "Send notification to owner" },
       { type: "store_result", label: "Store Result", description: "Persist result for later" },
-    ],
-  },
-  {
-    type: "agent_payments",
-    label: "Payments",
-    description: "x402 micropayments",
-    icon: <DollarSign size={18} />,
-    operations: [
-      { type: "x402_pay", label: "x402 Pay", description: "Send micropayment via x402" },
     ],
   },
 ];
@@ -241,10 +234,6 @@ const BLOCK_CONFIG_FIELDS: Record<string, BlockConfigField[]> = {
     { key: "webhookUrl", label: "Webhook URL", type: "text", placeholder: "https://hooks.example.com/..." },
     { key: "payload", label: "Payload Template", type: "text", placeholder: '{"event": "..."}' },
   ],
-  x402_pay: [
-    { key: "recipientUrl", label: "Payment URL", type: "text", placeholder: "https://service.com/api/premium" },
-    { key: "amount", label: "Amount (USDC)", type: "number", placeholder: "e.g. 0.001" },
-  ],
   query_user: [
     { key: "prompt", label: "Prompt", type: "text", placeholder: "e.g. Enter your wallet address" },
     { key: "inputType", label: "Input Type", type: "select", placeholder: "Select", options: ["text", "number", "address"] },
@@ -269,7 +258,6 @@ function getIconForType(type: string, size = 16): React.ReactNode {
   if (["send_email", "set_reminder", "create_task", "schedule_meeting"].includes(type)) return <Mail size={size} />;
   if (["conditional", "loop"].includes(type)) return <GitBranch size={size} />;
   if (["api_call", "webhook_notify"].includes(type)) return <Globe size={size} />;
-  if (["x402_pay"].includes(type)) return <DollarSign size={size} />;
   if (type === "query_user") return <User size={size} />;
   if (type === "run_sub_agent") return <BrainCircuit size={size} />;
   if (type === "notify_user") return <Bell size={size} />;
@@ -466,79 +454,6 @@ const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 2;
 const ZOOM_STEP = 0.25;
 
-// ─── x402 payment helper ─────────────────────────────────────────────────────
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type VWalletClient = { signTypedData: (args: any) => Promise<`0x${string}`> };
-type DeployResult = "paid" | "server_error" | "rejected" | "insufficient_funds" | "error";
-
-async function payForDeploy(skillCount: number, address: `0x${string}`, walletClient: VWalletClient): Promise<DeployResult> {
-  try {
-    const { wrapFetchWithPayment } = await import("@x402/fetch");
-    const { ExactEvmScheme } = await import("@x402/evm");
-    const { x402Client } = await import("@x402/core/client");
-
-    const evmSigner = {
-      address,
-      signTypedData: async (msg: {
-        domain: Record<string, unknown>;
-        types: Record<string, unknown>;
-        primaryType: string;
-        message: Record<string, unknown>;
-      }) => {
-        return walletClient.signTypedData({
-          domain: msg.domain as Parameters<typeof walletClient.signTypedData>[0]["domain"],
-          types: msg.types as Parameters<typeof walletClient.signTypedData>[0]["types"],
-          primaryType: msg.primaryType,
-          message: msg.message,
-        });
-      },
-    };
-
-    const exactScheme = new ExactEvmScheme(evmSigner);
-    const client = new x402Client().register(x402ClientConfig.chainId, exactScheme);
-    const paymentFetch = wrapFetchWithPayment(fetch, client);
-
-    const res = await paymentFetch(`/api/agents/deploy?skills=${skillCount}`, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (res.ok) return "paid";
-
-    // Parse x402 error details from the response
-    if (res.status === 402) {
-      const hdr = res.headers.get("payment-required") || res.headers.get("x-payment");
-      if (hdr) {
-        try {
-          const parsed = JSON.parse(atob(hdr));
-          const errStr = JSON.stringify(parsed).toLowerCase();
-          if (errStr.includes("insufficient_funds") || errStr.includes("insufficient")) return "insufficient_funds";
-        } catch { /* ignore parse errors */ }
-      }
-      // Try reading body for error details
-      try {
-        const body = await res.json();
-        const errStr = JSON.stringify(body).toLowerCase();
-        if (errStr.includes("insufficient")) return "insufficient_funds";
-        console.error("[x402] Payment failed (402):", body);
-      } catch { /* ignore */ }
-      return "error";
-    }
-
-    // Server misconfigured (PAY_TO_ADDRESS missing, etc.)
-    if (res.status === 500) return "server_error";
-
-    console.error("[x402] Unexpected status:", res.status);
-    return "error";
-  } catch (err) {
-    console.error("[x402] Payment error:", err);
-    const msg = err instanceof Error ? err.message : String(err);
-    if (msg.includes("rejected") || msg.includes("denied") || msg.includes("User rejected")) return "rejected";
-    if (msg.includes("insufficient") || msg.includes("INSUFFICIENT")) return "insufficient_funds";
-    return "error";
-  }
-}
-
 // ─── Main component ──────────────────────────────────────────────────────────
 function AgentBuilderInner() {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -596,7 +511,6 @@ function AgentBuilderInner() {
   const favoriteOps = useMemo(() => favorites.size === 0 ? [] : SIDEBAR_TOOLS.flatMap((t) => t.operations).filter((op) => favorites.has(op.type)), [favorites]);
   const selectedNode = nodes.find((n) => n.id === selectedNodeId) ?? null;
   const distinctSkillTypes = useMemo(() => [...new Set(nodes.map((n) => n.type))], [nodes]);
-  const deployTotal = useMemo(() => (distinctSkillTypes.length * parseFloat(FEATURE_PRICE_USDC)).toFixed(1), [distinctSkillTypes]);
 
   useEffect(() => { const el = contentRef.current; if (!el) return; const update = () => setCanvasSize({ w: el.offsetWidth, h: el.offsetHeight }); update(); const ro = new ResizeObserver(update); ro.observe(el); return () => ro.disconnect(); }, []);
 
@@ -638,35 +552,20 @@ function AgentBuilderInner() {
   }, [isConnected, address, nodes, toast, onDeployOpen]);
 
   const handleDeployConfirm = useCallback(async () => {
-    if (!address) return;
-    if (!walletClient) {
-      toast({ title: "Wallet not ready", description: "Please make sure you are connected to BSC Testnet (chain 97).", status: "error", duration: 5000 });
+    if (!address || !walletClient) return;
+    if (!DEPLOY_FEE_ADDRESS) {
+      toast({ title: "Deploy fee address not configured", status: "error", duration: 5000 });
       return;
     }
     setDeployLoading(true);
     try {
-      // 1. x402 payment first — without payment we do not touch the backend
-      const r = await payForDeploy(distinctSkillTypes.length, address as `0x${string}`, walletClient);
-      if (r !== "paid") {
-        if (r === "server_error") {
-          toast({ title: "Payment server error", description: "Check that the dev server is running and see the terminal for details.", status: "error", duration: 5000 });
-        } else if (r === "rejected") {
-          toast({ title: "Payment cancelled", description: "You rejected the signature request.", status: "warning", duration: 3000 });
-        } else if (r === "insufficient_funds") {
-          toast({ title: "Insufficient BUSD on BSC testnet", description: "You need BUSD at 0xeD24...792 on chain 97. Get testnet BUSD from the BSC faucet.", status: "error", duration: 8000 });
-        } else {
-          toast({ title: "Deploy payment failed", description: "Check browser console for details. Make sure you are on BSC Testnet.", status: "error", duration: 6000 });
-        }
-        return;
-      }
-
-      // 2. Payment succeeded — now save agent to backend (create or update)
+      // 1. Save agent to backend (create or update)
       let agentId = currentAgentId;
       if (!agentId) {
         const saveResult = await saveAgent(address, { name: agentName, nodes, edges });
         if (!("agent" in saveResult)) {
           toast({
-            title: "Payment succeeded but save failed",
+            title: "Save failed",
             description: saveResult.hint ?? saveResult.error,
             status: "error",
             duration: 7000,
@@ -679,7 +578,7 @@ function AgentBuilderInner() {
         const updateResult = await saveAgent(address, { id: agentId, name: agentName, nodes, edges });
         if (!("agent" in updateResult)) {
           toast({
-            title: "Payment succeeded but update failed",
+            title: "Update failed",
             description: updateResult.hint ?? updateResult.error,
             status: "error",
             duration: 7000,
@@ -688,12 +587,35 @@ function AgentBuilderInner() {
         }
       }
 
-      // 3. Trigger deployment pipeline
-      const deployResult = await deployAgent(address, agentId, distinctSkillTypes.length);
+      // 2. Pay tBNB deploy fee (0.001 per distinct skill type)
+      const totalCost = (parseFloat(DEPLOY_FEE_PER_SKILL) * distinctSkillTypes.length).toFixed(3);
+      toast({ title: "Confirm payment in wallet...", status: "info", duration: 10000, isClosable: true });
+
+      let txHash: string;
+      try {
+        txHash = await walletClient.sendTransaction({
+          to: DEPLOY_FEE_ADDRESS,
+          value: parseEther(totalCost),
+          chain: undefined,
+        });
+      } catch (payErr) {
+        const msg = payErr instanceof Error ? payErr.message : "Payment failed";
+        if (msg.includes("rejected") || msg.includes("denied")) {
+          toast({ title: "Payment cancelled", status: "warning", duration: 3000 });
+        } else {
+          toast({ title: "Payment failed", description: msg.length > 120 ? msg.slice(0, 120) + "..." : msg, status: "error", duration: 5000 });
+        }
+        return;
+      }
+
+      toast({ title: "Payment sent!", description: `Tx: ${txHash.slice(0, 10)}...${txHash.slice(-8)}`, status: "success", duration: 3000 });
+
+      // 3. Trigger deployment pipeline with payment proof
+      const deployResult = await deployAgent(address, agentId, distinctSkillTypes.length, txHash);
       if (deployResult.deployed) {
         toast({
           title: "Agent deployed!",
-          description: deployResult.workerUrl ? `Live at ${deployResult.workerUrl}` : "Payment confirmed via x402.",
+          description: deployResult.workerUrl ? `Live at ${deployResult.workerUrl}` : "Deployment successful.",
           status: "success",
           duration: 5000,
         });
@@ -708,7 +630,7 @@ function AgentBuilderInner() {
     } finally {
       setDeployLoading(false);
     }
-  }, [walletClient, address, distinctSkillTypes, currentAgentId, agentName, nodes, edges, toast, router, onDeployClose]);
+  }, [address, walletClient, distinctSkillTypes, currentAgentId, agentName, nodes, edges, toast, router, onDeployClose]);
 
   return (
     <AppShell>
@@ -928,17 +850,17 @@ function AgentBuilderInner() {
 
       <Modal isOpen={isDeployOpen} onClose={onDeployClose} isCentered>
         <ModalOverlay />
-        <ModalContent border="1px solid" borderColor="gray.200" borderRadius="xl" boxShadow="xl">
-          <ModalHeader fontWeight="600" borderBottom="1px solid" borderColor="gray.200">
+        <ModalContent bg="white" border="1px solid" borderColor="gray.200" borderRadius="xl" boxShadow="xl">
+          <ModalHeader fontWeight="600" borderBottom="1px solid" borderColor="gray.200" color={BLACK}>
             <HStack spacing={2}>
               <Rocket size={20} />
               <Text>Deploy Claw</Text>
             </HStack>
           </ModalHeader>
-          <ModalCloseButton />
+          <ModalCloseButton color={BLACK} />
           <ModalBody py={6}>
             <VStack spacing={4} align="stretch">
-              <Text fontSize="sm" color="gray.600">Deploy <strong>{agentName}</strong> with <strong>{distinctSkillTypes.length} skill{distinctSkillTypes.length !== 1 ? "s" : ""}</strong>.</Text>
+              <Text fontSize="sm" color={BLACK}>Deploy <strong>{agentName}</strong> with <strong>{distinctSkillTypes.length} skill{distinctSkillTypes.length !== 1 ? "s" : ""}</strong>.</Text>
               {/* Skills */}
               <Flex flexWrap="wrap" gap={2}>
                 {distinctSkillTypes.map((type) => (
@@ -948,30 +870,30 @@ function AgentBuilderInner() {
                   </HStack>
                 ))}
               </Flex>
-              {/* Cost */}
+              {/* Cost & Info */}
               <Box bg={SMALL_BOX} borderRadius="lg" p={4} border="2px solid" borderColor={`${BLUE}30`}>
                 <HStack justify="space-between" mb={1}>
-                  <Text fontSize="sm" color="gray.600">{distinctSkillTypes.length} &times; {FEATURE_PRICE_USDC} USDC</Text>
-                  <Text fontSize="lg" fontWeight="bold" color={BLACK} fontFamily="serif">{deployTotal} USDC</Text>
+                  <Text fontSize="sm" color={BLACK}>{distinctSkillTypes.length} skill{distinctSkillTypes.length !== 1 ? "s" : ""} x {DEPLOY_FEE_PER_SKILL} tBNB</Text>
+                  <Text fontSize="sm" fontWeight="bold" color={BLACK}>{(parseFloat(DEPLOY_FEE_PER_SKILL) * distinctSkillTypes.length).toFixed(3)} tBNB</Text>
                 </HStack>
-                <Text fontSize="2xs" color="gray.500">Paid via x402 (BUSD) on BSC testnet</Text>
+                <Text fontSize="2xs" color={BLACK} opacity={0.6}>Deployed as a Cloudflare Worker on BSC Testnet</Text>
               </Box>
             </VStack>
           </ModalBody>
           <ModalFooter borderTop="2px solid" borderColor={BLACK} gap={2}>
-            <Button variant="ghost" onClick={onDeployClose} isDisabled={deployLoading} color="gray.500">Cancel</Button>
+            <Button variant="ghost" onClick={onDeployClose} isDisabled={deployLoading} color={BLACK}>Cancel</Button>
             <Button
               bg={BLUE}
               color="white"
               borderRadius="lg"
               fontWeight="600"
               _hover={{ bg: "green.600" }}
-              leftIcon={deployLoading ? <Spinner size="sm" /> : <DollarSign size={16} />}
+              leftIcon={deployLoading ? <Spinner size="sm" /> : <Rocket size={16} />}
               onClick={handleDeployConfirm}
               isDisabled={deployLoading}
               transition="all 0.15s"
             >
-              {deployLoading ? "Processing..." : `Pay ${deployTotal} USDC & Deploy`}
+              {deployLoading ? "Paying & Deploying..." : "Pay & Deploy"}
             </Button>
           </ModalFooter>
         </ModalContent>

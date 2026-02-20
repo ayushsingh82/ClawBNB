@@ -218,24 +218,11 @@ const INTEGRATION_MODULES: Record<string, () => ModuleToolDefinition> = {
   }),
 };
 
-const PAYMENT_MODULES: Record<string, () => ModuleToolDefinition> = {
-  x402_pay: () => ({
-    name: "x402_pay",
-    description: "Send micropayment via x402 facilitator",
-    inputSchema: schemaFromFields([
-      { key: "recipientUrl", label: "Payment URL", type: "text", placeholder: "https://service.com/api/premium" },
-      { key: "amount", label: "Amount (USDC)", type: "number", placeholder: "e.g. 0.001" },
-    ]),
-    toolFunction: "x402_pay",
-  }),
-};
-
 const moduleRegistry: Record<string, () => ModuleToolDefinition> = {
   ...ACTION_MODULES,
   ...DATA_MODULES,
   ...LOGIC_MODULES,
   ...INTEGRATION_MODULES,
-  ...PAYMENT_MODULES,
 };
 
 export { moduleRegistry };

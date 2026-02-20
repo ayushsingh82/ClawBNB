@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/server/db";
 
-function stripPK<T extends Record<string, unknown>>(agent: T) {
+function stripPK(agent: Record<string, unknown>) {
   const { walletPrivateKey: _, ...safe } = agent;
   return safe;
 }
@@ -41,7 +41,7 @@ export async function GET(
     return NextResponse.json({ error: "Agent not found" }, { status: 404 });
   }
 
-  return NextResponse.json({ agent: stripPK(agent) });
+  return NextResponse.json({ agent: stripPK(agent as unknown as Record<string, unknown>) });
 }
 
 // DELETE /api/agents/[id]
@@ -122,5 +122,5 @@ export async function PATCH(
     data: allowed,
   });
 
-  return NextResponse.json({ agent: stripPK(updated) });
+  return NextResponse.json({ agent: stripPK(updated as unknown as Record<string, unknown>) });
 }

@@ -496,10 +496,10 @@ export function MyAgentsContent() {
     try {
       const hash = await walletClient.sendTransaction({
         to: executeTarget.walletAddress as `0x${string}`,
-        value: parseEther("0.1"),
+        value: parseEther("0.001"),
         chain: undefined,
       });
-      toast({ title: "Funded!", description: `Sent 0.1 BNB — tx: ${hash.slice(0, 16)}...`, status: "success", duration: 4000 });
+      toast({ title: "Funded!", description: `Sent 0.001 BNB — tx: ${hash.slice(0, 16)}...`, status: "success", duration: 4000 });
       // Wait a moment then refresh balance
       setTimeout(() => refreshBalance(), 3000);
     } catch (err) {
@@ -768,7 +768,7 @@ export function MyAgentsContent() {
                               isLoading={fundingTx}
                               loadingText="Sending..."
                             >
-                              Fund 0.1 BNB
+                              Fund 0.001 BNB
                             </Button>
                           </HStack>
                         </HStack>

@@ -9,10 +9,9 @@ import {
 } from "viem";
 import { bscTestnet } from "@/lib/chains";
 
-// ─── Contract Addresses (update after redeployment) ───
-// These contracts have open minting (no onlyOwner restriction)
-const MINT_TOKEN_ADDRESS = "0x94757c17653f94434A8837455a20FA3Fde7bC604" as `0x${string}`;
-const MINT_NFT_ADDRESS = "0x81A465C11C4785C64A11b8FE21153936112d2661" as `0x${string}`;
+// ─── Contract Addresses ───
+const MINT_TOKEN_ADDRESS = "0xe936e65D9F598059579E3Dc74E98514124538398" as `0x${string}`;
+const MINT_NFT_ADDRESS = "0x1451A67F6527B6B37CFCA506dab9E5Fdcd6b9bd2" as `0x${string}`;
 
 // ─── Inline ABIs (just the mint functions we need) ───
 const mintTokenAbi = [
