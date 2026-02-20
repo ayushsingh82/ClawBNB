@@ -227,7 +227,7 @@ export async function deployAgent(
   txHash: string,
   canvasJson: { nodes: CanvasBlock[]; edges: CanvasEdge[] }
 ): Promise<{ deployed: boolean; workerUrl?: string; error?: string }> {
-  const res = await fetch("/api/agents/deploy", {
+const res = await fetch("/api/agents/deploy", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -300,7 +300,7 @@ export async function executeAgent(
     }
   }
 
-  const res = await fetch(`/api/agents/${agentId}/execute`, {
+const res = await fetch(`/api/agents/${agentId}/execute`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
